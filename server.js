@@ -52,15 +52,15 @@ function measToQ(measurements, start, end) {
     });
 }
 
-function transformInfluxData(results) {
-    // [0] influx.query
-    // [1] measurement names
-    if(typeof results[0].group != "undefined") {
-        results[0] = [results[0]];
+function transformInfluxData(pList) {
+    var results = pList[0];
+    var measurements = pList[1];
+    if(typeof results.group != "undefined") {
+        results = [results];
     }
     var data = {};
-    for(var i = 0; i < results[0].length; i++) {
-        data[results[1][i]] = results[0][i].map(result => {
+    for(var i = 0; i < results.length; i++) {
+        data[measurements[i]] = results[i].map(result => {
             return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(Math.round(result.value * 100) / 100)];
         });
     }
@@ -69,7 +69,7 @@ function transformInfluxData(results) {
 
 function getInfluxData(measurements) {
     var q = measToQ(measurements);
-    return Promise.resolve(Promise.all([influx.query(q), measurements]).then(transformInfluxData));
+    return Promise.all([influx.query(q), measurements]).then(transformInfluxData);
 }
 
 io.on('connection', function(socket) {
