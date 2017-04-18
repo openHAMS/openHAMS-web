@@ -48,7 +48,7 @@ function filterMeasurements(names) {
 function measToQ(measurements, start, end) {
     return measurements.map(availableMeasurement => {
         // return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
-        return 'SELECT MEAN(value) AS value FROM ' + availableMeasurement + ' WHERE time > now() - 3h GROUP BY time(5m)'
+        return 'SELECT MEAN(value) AS value FROM ' + availableMeasurement + ' WHERE time > now() - 3h GROUP BY time(5m) fill(none)'
     });
 }
 
