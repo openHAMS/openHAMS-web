@@ -61,7 +61,7 @@ function transformInfluxData(results) {
     var data = {};
     for(var i = 0; i < results[0].length; i++) {
         data[results[1][i]] = results[0][i].map(result => {
-            return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(result.value)];
+            return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(Math.round(result.value * 100) / 100)];
         });
     }
     return data;
