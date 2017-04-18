@@ -72,39 +72,10 @@ function getInfluxData(measurements) {
     return Promise.resolve(Promise.all([influx.query(q), measurements]).then(transformInfluxData));
 }
 
-function sendInfluxData(data) {
-    io.emit('server/history', data);
-}
-
-function sendInfluxHistory() {
-}
-
-
 io.on('connection', function(socket) {
-    influx.getMeasurements().then(filterMeasurements).then(getInfluxData).then(sendInfluxData);
-    // influx.getMeasurements().then(names => {
-    //         var availableMeasurements = subscribeList.map(mqttAddr => {
-    //             var mqttSplit = mqttAddr.split('/');
-    //             return mqttSplit[mqttSplit.length - 1];
-    //         }).filter(queryMeasurement => {
-    //             return names.includes(queryMeasurement);
-    //         });
-    //         var q = availableMeasurements.map(availableMeasurement => {
-    //             // return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
-    //             return 'SELECT MEAN(value) AS value FROM ' + availableMeasurement + ' WHERE time > now() - 3h GROUP BY time(5m)'
-    //         });
-    //         influx.query(q).then(results => {
-    //             if(typeof results.group != "undefined") results = [results];
-    //             var data = {};
-    //             for(var i = 0; i < results.length; i++) {
-    //                 console.log(results[i]);
-    //                 data[availableMeasurements[i]] = results[i].map(result => {
-    //                     return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(result.value)];
-    //                 });
-    //             }
-    //             io.emit('server/history', data);
-    //         });
-    // });
+    influx.getMeasurements().then(filterMeasurements).then(getInfluxData).then(data => {
+        io.emit('server/history', data);
+    });
 });
 
 app.use(express.static('public'));
