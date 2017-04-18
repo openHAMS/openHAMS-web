@@ -85,6 +85,12 @@ app.get('/', function(req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
+app.get('/json', function(req, res) {
+    influx.getMeasurements().then(filterMeasurements).then(getInfluxData).then(data => {
+        res.json(data);
+    });
+});
+
 
 var PING_URL = "http://ipecho.net/plain";
 var OWN_URL = "http://racerzeroone.duckdns.org/";
