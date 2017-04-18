@@ -1,0 +1,30 @@
+{
+  "name": "openhams",
+  "version": "2.0.0",
+  "description": "Open home automation and monitoring system",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openHAMS/openHAMS.git"
+  },
+  "keywords": [
+    "openHAMS"
+  ],
+  "author": "Laszlo Szekely-Toth",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/openHAMS/openHAMS/issues"
+  },
+  "homepage": "https://github.com/openHAMS/openHAMS#readme",
+  "dependencies": {
+    "express": "^4.15.2",
+    "influx": "^5.0.0-alpha.4",
+    "jsonfile": "^2.4.0",
+    "mqtt": "^2.5.0",
+    "promise": "^7.1.1",
+    "socket.io": "^1.7.3"
+  }
+}
