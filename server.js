@@ -54,15 +54,11 @@ function makeQueries(measurements, start, end) {
     return Promise.all([measurements, measurements.map(m => { return measToQ(m, start, end); })]);
 }
 
-function getInfluxData(data) {
-    var measurements = data[0];
-    var queries = data[1];
+function getInfluxData(measurements, queries) {
     return Promise.all([influx.query(queries), measurements]);
 }
 
-function transformInfluxData(pList) {
-    var results = pList[0];
-    var measurements = pList[1];
+function transformInfluxData(results, measurements) {
     if (typeof results.group != "undefined") {
         results = [results];
     }
@@ -80,10 +76,22 @@ io.on('connection', function (socket) {
     var end = 0;
     influx.getMeasurements()
         .then(filterMeasurements)
-        .then(m => { return makeQueries(m, start, end); })
-        .then(getInfluxData)
-        .then(transformInfluxData)
-        .then(data => { io.emit('server/history', data); });
+        .then(m => {
+            return makeQueries(m, start, end);
+        })
+        .then(pList => {
+            var measurements = data[0];
+            var queries = data[1];
+            getInfluxData()
+        })
+        .then(plist => {
+            var results = pList[0]
+            var measurements = pList[1];
+            return transformInfluxData(results, measurements);
+        })
+        .then(data => {
+            io.emit('server/history', data);
+        });
 });
 
 app.use(express.static('public'));
