@@ -23,7 +23,7 @@ var subscribeList = [
 ];
 
 
-mqtt.on('connect', function() {
+mqtt.on('connect', function () {
     console.log('mqtt conn');
     subscribeList.forEach(s => {
         console.log(s);
@@ -31,71 +31,84 @@ mqtt.on('connect', function() {
     });
 });
 
-mqtt.on('message', function(topic, message) {
+mqtt.on('message', function (topic, message) {
     io.sockets.emit(topic, message.toString());
 });
 
 function filterMeasurements(names) {
     var availableMeasurements = subscribeList.map(mqttAddr => {
-        var mqttSplit = mqttAddr.split('/');
-        return mqttSplit[mqttSplit.length - 1];
-    }).filter(queryMeasurement => {
-        return names.includes(queryMeasurement);
-    });
+            var mqttSplit = mqttAddr.split('/');
+            return mqttSplit[mqttSplit.length - 1];
+        }).filter(queryMeasurement => {
+            return names.includes(queryMeasurement);
+        });
     return availableMeasurements;
 }
 
-function measToQ(measurements, start, end) {
-    return measurements.map(availableMeasurement => {
-        // return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
-        return 'SELECT MEAN(value) AS value FROM ' + availableMeasurement + ' WHERE time > now() - 3h GROUP BY time(5m) fill(none)'
-    });
+function measToQ(availableMeasurement, start, end) {
+    // return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
+    return 'SELECT MEAN(value) AS value FROM ' + availableMeasurement + ' WHERE time > now() - 3h GROUP BY time(5m) fill(none)'
+}
+
+function makeQueries(measurements, start, end) {
+    return Promise.all([measurements, measurements.map(m => { return measToQ(m, start, end); })]);
+}
+
+function getInfluxData(data) {
+    var measurements = data[0];
+    var queries = data[1];
+    return Promise.all([influx.query(queries), measurements]);
 }
 
 function transformInfluxData(pList) {
     var results = pList[0];
     var measurements = pList[1];
-    if(typeof results.group != "undefined") {
+    if (typeof results.group != "undefined") {
         results = [results];
     }
     var data = {};
-    for(var i = 0; i < results.length; i++) {
+    for (var i = 0; i < results.length; i++) {
         data[measurements[i]] = results[i].map(result => {
-            return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(Math.round(result.value * 100) / 100)];
-        });
+                return [parseInt(result.time.getNanoTime().slice(0, 13)), parseFloat(Math.round(result.value * 100) / 100)];
+            });
     }
     return data;
 }
 
-function getInfluxData(measurements) {
-    var q = measToQ(measurements);
-    return Promise.all([influx.query(q), measurements]).then(transformInfluxData);
-}
-
-io.on('connection', function(socket) {
-    influx.getMeasurements().then(filterMeasurements).then(getInfluxData).then(data => {
-        io.emit('server/history', data);
-    });
+io.on('connection', function (socket) {
+    var start = 0;
+    var end = 0;
+    influx.getMeasurements()
+        .then(filterMeasurements)
+        .then(m => { return makeQueries(m, start, end); })
+        .then(getInfluxData)
+        .then(transformInfluxData)
+        .then(data => { io.emit('server/history', data); });
 });
 
 app.use(express.static('public'));
 app.use('/static', express.static('public'));
 
-app.get('/', function(req, res) {
+app.get('/', function (req, res) {
     res.sendFile(__dirname + '/index.html');
 });
 
-app.get('/json', function(req, res) {
-    influx.getMeasurements().then(filterMeasurements).then(getInfluxData).then(data => {
-        res.json(data);
-    });
+app.get('/json', function (req, res) {
+    var start = 0;
+    var end = 0;
+    influx.getMeasurements()
+        .then(filterMeasurements)
+        .then(m => { return makeQueries(m, start, end); })
+        .then(getInfluxData)
+        .then(transformInfluxData)
+        .then(data => { res.json(data); });
 });
 
 
 var PING_URL = "http://ipecho.net/plain";
 var OWN_URL = "http://racerzeroone.duckdns.org/";
-http.get(PING_URL, function(res) {
-    res.on("data", function(data) {
+http.get(PING_URL, function (res) {
+    res.on("data", function (data) {
         console.log("================================================================================");
         console.log("    " + "ip:  " + data + ":8081");
         console.log("    " + "url: " + OWN_URL);
@@ -104,6 +117,6 @@ http.get(PING_URL, function(res) {
 });
 
 
-server.listen(8081, function() {
+server.listen(8081, function () {
     console.log('listening');
 });
