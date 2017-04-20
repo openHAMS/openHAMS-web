@@ -115,8 +115,8 @@ var OWN_URL = "http://racerzeroone.duckdns.org/";
 http.get(PING_URL, function (res) {
     res.on("data", function (data) {
         console.log("================================================================================");
-        console.log("    " + "ip:  " + data + ":8081");
-        console.log("    " + "url: " + OWN_URL);
+        console.log("    ip:  " + data + ":8081");
+        console.log("    url: " + OWN_URL);
         console.log("================================================================================");
     }).setEncoding("utf8");
 });
