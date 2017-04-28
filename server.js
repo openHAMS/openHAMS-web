@@ -123,8 +123,8 @@ function getInfluxData(start, end) {
             var measurements = pList[1];
             return transformInfluxData(results, measurements);
         });
-
 }
+
 
 io.on('connection', function(socket) {
     getInfluxData().then(data => {
