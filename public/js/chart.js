@@ -8,11 +8,6 @@ Highcharts.setOptions({
 
 var stillUpdating = false;
 
-function addFirst(data) {
-    data.splice(0, 0, [1492300800000, null]);
-    return data;
-}
-
 function afterSetExtremes(e) {
     if (!stillUpdating) {
         var currExMin = (Math.round(e.min / 1000) * 1000);
@@ -22,8 +17,8 @@ function afterSetExtremes(e) {
         $.getJSON('jsonp?start=' + currExMin +
             '&end=' + currExMax + '&callback=?',
             function(data) {
-                chart.series[0].setData(addFirst(data["pressure"]));
-                chart.series[1].setData(addFirst(data["temperature"]));
+                chart.series[0].setData(data["pressure"]);
+                chart.series[1].setData(data["temperature"]);
                 chart.hideLoading();
                 stillUpdating = false;
             });
@@ -34,7 +29,7 @@ function loadGraph(history) {
     var seriesOptions = [];
     seriesOptions[0] = {
         color: Highcharts.getOptions().colors[1],
-        data: addFirst(history["pressure"]),
+        data: history["pressure"],
         name: 'Pressure',
         tooltip: {
             valueSuffix: ' hPa'
@@ -43,7 +38,7 @@ function loadGraph(history) {
     };
     seriesOptions[1] = {
         color: Highcharts.getOptions().colors[0],
-        data: addFirst(history["temperature"]),
+        data: history["temperature"],
         name: 'Temperature',
         tooltip: {
             valueSuffix: ' ℃'

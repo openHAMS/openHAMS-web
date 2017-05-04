@@ -2,6 +2,8 @@
 const express = require('express');
 const app = express();
 const http = require('http');
+const pug = require('pug');
+
 const jsonfile = require('jsonfile')
 const server = http.Server(app);
 const io = require('socket.io')(server);
@@ -17,16 +19,16 @@ const influx = new Influx.InfluxDB({
 
 
 var ledColor = '#00000000';
-var subscribeList = [
+const subscribeList = [
     'home/rcr/sensors/bmp180/pressure',
     'home/rcr/sensors/bmp180/temperature'
 ];
 
 
 mqtt.on('connect', function() {
-    console.log('mqtt conn');
+    console.log('mqtt conn:');
     subscribeList.forEach(s => {
-        console.log(s);
+        console.log(`    ${s}`);
         mqtt.subscribe(s);
     });
 });
@@ -46,56 +48,48 @@ function filterMeasurements(names) {
 }
 
 function measToQ(availableMeasurement, start, end) {
-    // return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
     if (start == null || end == null) {
-        return 'SELECT MEAN(value) AS value FROM ' +
-            availableMeasurement +
-            ' WHERE time > now() - 6h GROUP BY time(5m) fill(none)';
-    } else {
-        var duration = end - start;
-        start = String(start + "0000000000000000000").substring(0, 19);
-        end = String(end + "0000000000000000000").substring(0, 19);
-        if (duration < 30 * 60 * 1000) {
-            // 1m
-            return 'SELECT value FROM ' + availableMeasurement + ' WHERE time > now() - 3h';
-        } else {
-            var q = 'SELECT MEAN(value) AS value FROM ' + availableMeasurement +
-                ' WHERE time > ' + start + ' AND time < ' + end;
-            if (duration < 2 * 60 * 60 * 1000) {
-                // 1h - 1.25m
-                q += ' GROUP BY time(75s)';
-            } else if (duration < 4.5 * 60 * 60 * 1000) {
-                // 3h - 3.75m
-                q += ' GROUP BY time(225s)';
-            } else if (duration < 9 * 60 * 60 * 1000) {
-                // 6h - 7.5m
-                q += ' GROUP BY time(450s)';
-            } else if (duration < 18 * 60 * 60 * 1000) {
-                // 12h - 15m
-                q += ' GROUP BY time(900s)';
-            } else {
-                // 24h - 30m
-                q += ' GROUP BY time(1800s)';
-            }
-            q += " fill(none)";
-            console.log('q: ', q);
-            return q;
-        }
+        return `SELECT MEAN(value) AS value FROM ${availableMeasurement} ` +
+            `WHERE time > now() - 6h ` +
+            `GROUP BY time(5m) fill(none)`
     }
+    start = parseInt(start);
+    end = parseInt(end);
+    // duration conversion ns to h
+    var duration = (end - start) / (60 * 60 * 1000);
+    start = String(start + '0000000000000000000').substring(0, 19);
+    end = String(end + '0000000000000000000').substring(0, 19);
+    if (duration < 0.5) {
+        // 1m - raw data
+        var q = `SELECT value FROM ${availableMeasurement} ` +
+            `WHERE time > now() - 3h`;
+    } else {
+        if (duration < 2.25) {
+            // 1h - 1.25m
+            var t = 75;
+        } else if (duration < 4.5) {
+            // 3h - 3.75m
+            var t = 225;
+        } else if (duration < 9) {
+            // 6h - 7.5m
+            var t = 450;
+        } else if (duration < 18) {
+            // 12h - 15m
+            var t = 900;
+        } else {
+            // 24h - 30m
+            var t = 1800;
+        }
+        var q = `SELECT MEAN(value) AS value FROM ${availableMeasurement}` +
+            ` WHERE time > ${start} AND time < ${end} ` +
+            `GROUP BY time(${t}s) fill(none)`;
+    }
+    return q;
 }
 
-function makeQueries(measurements, start, end) {
-    return Promise.all([measurements, measurements.map(m => {
-        return measToQ(m, start, end);
-    })]);
-}
-
-function queryInflux(measurements, queries) {
-    return Promise.all([influx.query(queries), measurements]);
-}
-
-function transformInfluxData(results, measurements) {
-    if (typeof results.group != "undefined") {
+async function transformInfluxData(resultsPromise, measurements) {
+    var results = await resultsPromise;
+    if (typeof results.group != 'undefined') {
         results = [results];
     }
     var data = {};
@@ -107,57 +101,72 @@ function transformInfluxData(results, measurements) {
     return data;
 }
 
-function getInfluxData(start, end) {
-    return influx.getMeasurements()
-        .then(filterMeasurements)
-        .then(m => {
-            return makeQueries(m, start, end);
-        })
-        .then(pList => {
-            var measurements = pList[0];
-            var queries = pList[1];
-            return queryInflux(measurements, queries);
-        })
-        .then(pList => {
-            var results = pList[0]
-            var measurements = pList[1];
-            return transformInfluxData(results, measurements);
+async function getInfluxDataAsync(hasLimits, start, end) {
+    var measurements = await influx.getMeasurements().then(filterMeasurements);
+    var qStart = measurements.map(m => {
+        return `SELECT value FROM ${m} ORDER BY asc LIMIT 1`;
+    });
+    var qEnd = measurements.map(m => {
+        return `SELECT value FROM ${m} ORDER BY desc LIMIT 1`;
+    });
+    var qData = measurements.map(m => {
+        return measToQ(m, start, end);
+    });
+
+    if (hasLimits) {
+        var [dbData, dbStart, dbEnd] = await Promise.all([
+            transformInfluxData(influx.query(qData), measurements),
+            transformInfluxData(influx.query(qStart), measurements),
+            transformInfluxData(influx.query(qEnd), measurements)
+        ]);
+        Object.keys(dbData).forEach(function(key) {
+            dbData[key] = dbStart[key].concat(dbData[key]).concat(dbEnd[key]);
         });
+    } else {
+        var dbData = await transformInfluxData(influx.query(qData), measurements);
+    }
+    return dbData;
 }
 
 
+
+
 io.on('connection', function(socket) {
-    getInfluxData().then(data => {
-        io.emit('server/history', data);
-    });
+    getInfluxDataAsync(true)
+        .then(data => {
+            io.emit('server/history', data);
+        });
 });
 
 app.use(express.static('public'));
 app.use('/static', express.static('public'));
 
+app.set('view engine', 'pug');
+
 app.get('/', function(req, res) {
-    res.sendFile(__dirname + '/index.html');
+    // res.sendFile(__dirname + '/index.html');
+    res.render('index');
 });
 
 app.get('/jsonp', function(req, res) {
     console.log('jsonp');
     var start = req.query.start;
     var end = req.query.end;
-    getInfluxData(start, end).then(data => {
+    getInfluxDataAsync(true, start, end).then(data => {
         res.jsonp(data);
     });
 });
 
 
-var PING_URL = "http://ipecho.net/plain";
-var OWN_URL = "http://racerzeroone.duckdns.org/";
+var PING_URL = 'http://ipecho.net/plain';
+var OWN_URL = 'http://racerzeroone.duckdns.org/';
 http.get(PING_URL, function(res) {
-    res.on("data", function(data) {
-        console.log("================================================================================");
-        console.log("    ip:  " + data + ":8081");
-        console.log("    url: " + OWN_URL);
-        console.log("================================================================================");
-    }).setEncoding("utf8");
+    res.on('data', function(data) {
+        console.log('================================================================================');
+        console.log(`    ip:  ${data}:8081`);
+        console.log(`    url: ${OWN_URL}`);
+        console.log('================================================================================');
+    }).setEncoding('utf8');
 });
 
 
