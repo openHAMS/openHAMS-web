@@ -7,11 +7,11 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 
 const Mqtt = require('mqtt');
-const mqtt = Mqtt.connect('mqtt://localhost:1883');
+const mqtt = Mqtt.connect('mqtt://192.168.1.200:1883');
 
 const Influx = require('influx');
 const influx = new Influx.InfluxDB({
-    host: 'localhost',
+    host: '192.168.1.200',
     database: 'sensors'
 });
 
