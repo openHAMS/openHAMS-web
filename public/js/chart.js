@@ -50,6 +50,7 @@ function loadGraph(history) {
         },
         yAxis: 1
     };
+    var chartSettings = generateChartSettings();
     chartSettings.series = seriesOptions;
     chartSettings.xAxis['events']['afterSetExtremes'] = afterSetExtremes;
     chart = new Highcharts.StockChart(chartSettings);
