@@ -45,7 +45,10 @@ function loadGraph(history) {
         },
         yAxis: 1
     };
-    var chartSettings = generateChartSettings();
+    // copying default settings
+    var chartSettings = JSON.parse(JSON.stringify(defaultChartSettings));
+    chartSettings.chart.renderTo = 'container';
+
     chartSettings.series = seriesOptions;
     chartSettings.xAxis['events']['afterSetExtremes'] = afterSetExtremes;
     chart = new Highcharts.StockChart(chartSettings);
