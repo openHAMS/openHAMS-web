@@ -9,16 +9,16 @@ const server = http.Server(app);
 const io = require('socket.io')(server);
 
 const Mqtt = require('mqtt');
-const mqtt = Mqtt.connect('mqtt://192.168.1.200:1883');
+const mqtt = Mqtt.connect('mqtt://127.0.0.1:1883');
 
 const Influx = require('influx');
 const influx = new Influx.InfluxDB({
-    host: '192.168.1.200',
+    host: '127.0.0.1',
     database: 'sensors'
 });
 
 
-var ledColor = '#00000000';
+// var ledColor = '#00000000';
 const subscribeList = [
     'home/rcr/sensors/bmp180/pressure',
     'home/rcr/sensors/bmp180/temperature'
@@ -80,8 +80,8 @@ function measToQ(availableMeasurement, start, end) {
             // 24h - 30m
             var t = 1800;
         }
-        var q = `SELECT MEAN(value) AS value FROM ${availableMeasurement}` +
-            ` WHERE time > ${start} AND time < ${end} ` +
+        var q = `SELECT MEAN(value) AS value FROM ${availableMeasurement} ` +
+            `WHERE time > ${start} AND time < ${end} ` +
             `GROUP BY time(${t}s) fill(none)`;
     }
     return q;
