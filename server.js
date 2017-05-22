@@ -104,6 +104,7 @@ async function transformInfluxData(resultsPromise, measurements) {
 async function getInfluxDataAsync(hasLimits, start, end) {
     var measurements = await influx.getMeasurements().then(filterMeasurements);
     var qStart = measurements.map(m => {
+        var q = measToQ()
         return `SELECT value FROM ${m} ORDER BY asc LIMIT 1`;
     });
     var qEnd = measurements.map(m => {
@@ -119,24 +120,39 @@ async function getInfluxDataAsync(hasLimits, start, end) {
             transformInfluxData(influx.query(qStart), measurements),
             transformInfluxData(influx.query(qEnd), measurements)
         ]);
+        Object.keys(dbStart).forEach(function(key) {
+            //dbStart[key][0][0] = Math.floor(dbStart[key][0][0]/100000)*100000
+            dbStart[key][0][1] = null;
+        });
+        Object.keys(dbEnd).forEach(function(key) {
+            dbEnd[key][0][0] = Math.ceil(dbEnd[key][0][0]/1000000)*1000000
+            dbEnd[key][0][1] = null;
+        });
+
+        console.log(dbStart);
+        console.log(dbEnd);
+        //console.log(dbData);
+
         Object.keys(dbData).forEach(function(key) {
             dbData[key] = dbStart[key].concat(dbData[key]).concat(dbEnd[key]);
         });
     } else {
-        var dbData = await transformInfluxData(influx.query(qData), measurements);
+        var [dbData, dbStart] = await Promise.all([
+            transformInfluxData(influx.query(qData), measurements),
+            transformInfluxData(influx.query(qStart), measurements)
+        ]);
+        Object.keys(dbData).forEach(function(key) {
+            dbData[key] = dbStart[key].concat(dbData[key]);
+        });
     }
     return dbData;
 }
 
+async function getInfluxExtremes() {
+    
+}
 
 
-
-io.on('connection', function(socket) {
-    getInfluxDataAsync(true)
-        .then(data => {
-            io.emit('server/history', data);
-        });
-});
 
 app.use(express.static('public'));
 app.use('/static', express.static('public'));
@@ -148,13 +164,26 @@ app.get('/', function(req, res) {
     res.render('index');
 });
 
-app.get('/jsonp', function(req, res) {
-    console.log('jsonp');
+app.get('/json', function(req, res) {
     var start = req.query.start;
     var end = req.query.end;
-    getInfluxDataAsync(true, start, end).then(data => {
-        res.jsonp(data);
-    });
+    var history = (typeof start !== 'undefined') && (typeof end !== 'undefined');
+    getInfluxDataAsync(history, start, end)
+        .then(data => {
+            res.json(data);
+        })
+        .catch(console.error);
+});
+
+app.get('/jsonp', function(req, res) {
+    var start = req.query.start;
+    var end = req.query.end;
+    var history = (typeof start !== 'undefined') && (typeof end !== 'undefined');
+    getInfluxDataAsync(history, start, end)
+        .then(data => {
+            res.jsonp(data);
+        })
+        .catch(console.error);
 });
 
 

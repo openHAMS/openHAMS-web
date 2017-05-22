@@ -8,6 +8,13 @@ $(document).ready(function() {
             console.log("closed");
         }
     });
+    var jsonp = `jsonp?callback=?`;
+    console.log(jsonp);
+    $.getJSON(jsonp,
+        function(recentData) {
+            loadGraph(recentData);
+        });
+
 });
 
 var socket = io();
@@ -26,12 +33,25 @@ function changeStatus(text, style) {
     document.getElementById('conntext').className = style;
     document.getElementById('connbull').className = style;
 }
-socket.on('server/history', function(recentData) {
-    loadGraph(recentData);
-});
 socket.on('home/rcr/sensors/bmp180/pressure', function(a) {
     document.getElementById('atm').textContent = parseFloat(a).toFixed(1);
 });
 socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
     document.getElementById('temp').textContent = parseFloat(t).toFixed(1);
 });
+
+
+function j(o) {
+    var cache = [];
+    var json = JSON.stringify(o, function(key, value) {
+        if (typeof value === 'object' && value !== null) {
+            if (cache.indexOf(value) !== -1) {
+                return;
+            }
+            cache.push(value);
+        }
+        return value;
+    });
+    cache = null;
+    return json;
+}

@@ -46,12 +46,11 @@ var defaultChartSettings = {
                 count: 1,
                 text: 'week'
             }
-        ],
-        selected: 2
+        ]
     },
     plotOptions: {
         series: {
-            gapSize: 4
+            gapSize: 400
         }
     },
     scrollbar: {
@@ -65,7 +64,6 @@ var defaultChartSettings = {
         valueDecimals: 2
     },
     yAxis: [{
-            allowDecimals: false,
             labels: {
                 align: 'right',
                 format: '{value:.1f}hPa',
