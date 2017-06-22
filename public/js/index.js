@@ -1,3 +1,4 @@
+"use strict";
 $(document).ready(function() {
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
     $('.modal').modal({
@@ -8,7 +9,7 @@ $(document).ready(function() {
             console.log("closed");
         }
     });
-    var jsonp = `jsonp?callback=?`;
+    let jsonp = `jsonp?callback=?`;
     console.log(jsonp);
     $.getJSON(jsonp,
         function(recentData) {
@@ -42,8 +43,8 @@ socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
 
 
 function j(o) {
-    var cache = [];
-    var json = JSON.stringify(o, function(key, value) {
+    let cache = [];
+    let json = JSON.stringify(o, function(key, value) {
         if (typeof value === 'object' && value !== null) {
             if (cache.indexOf(value) !== -1) {
                 return;
