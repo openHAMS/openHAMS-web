@@ -1,4 +1,6 @@
 "use strict";
+const fs = require('fs');
+
 const express = require('express');
 const app = express();
 const http = require('http');
@@ -23,6 +25,8 @@ const subscribeList = [
     'home/rcr/sensors/bmp180/pressure',
     'home/rcr/sensors/bmp180/temperature'
 ];
+
+const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
 
 
 mqtt.on('connect', function() {
@@ -161,7 +165,7 @@ app.set('view engine', 'pug');
 
 app.get('/', function(req, res) {
     // res.sendFile(__dirname + '/index.html');
-    res.render('index');
+    res.render('index', config);
 });
 
 app.get('/json', function(req, res) {

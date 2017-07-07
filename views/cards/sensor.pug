@@ -1,0 +1,19 @@
+mixin sensorcard(name, fields, chart, fab)
+    .col.s12.m6.l4
+        .card
+            if chart
+                .card-image
+                    div.chart(id = chart.name)
+                    if fab
+                        button.btn-floating.halfway-fab.waves-effect.waves-light.blue.modal-trigger(onclick=fab.function)
+                            i.material-icons= fab.icon
+            .card-content.grey-text.text-darken-3
+                span.card-title.grey-text= name
+                table.striped.grey-text.text-darken-1
+                    tbody
+                        each field in fields
+                            tr
+                                td= field.name
+                                td.right-align
+                                    data.grey-text.text-darken-2(id=field.id)
+                                td= field.unit

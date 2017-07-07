@@ -1,45 +1,30 @@
-body
-{
-	/*background-color: #FAFAFA;
-	font-family: 'Roboto', sans-serif;*/
-	/*font-size: 1.5em;
-	font-weight: 300;
-	margin: 0em;*/
+data {
+    font-color: #212121;
+    font-weight: 500;
 }
-data
-{
-	font-color: #212121;
-	font-weight: 500;
+div.chart {
+    height: 15em;
+    width: 100%;
 }
-/*
-div
-{
-	margin: 1em;
-}*/
-div.chart
-{
-	/*margin: -1em;*/
-	height: 15em;
-	width: 100%;
+status {
+    font-weight: 400;
+    margin-left: 0.33em;
 }
-status
-{
-	/*font-size: 0.67em;*/ font-weight: 400; margin-left: 0.33em;
+status.connect {
+    color: #4CAF50;
 }
-status.connect
-{
-	color: #4CAF50;
+status.connect_error {
+    color: #FF5722;
 }
-status.connect_error
-{
-	color: #FF5722;
+status.reconnect_attempt {
+    color: #FFC107;
 }
-status.reconnect_attempt
-{
-	color: #FFC107;
+.disabled {
+    pointer-events: none;
 }
-
-.disabled
-{
-	pointer-events: none;
+.ledstatusbg {
+    height: 3px;
+}
+.ledstatus {
+    height: 100%; width: 100%;
 }

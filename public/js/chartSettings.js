@@ -63,43 +63,5 @@ var defaultChartSettings = {
     tooltip: {
         valueDecimals: 2
     },
-    yAxis: [{
-            labels: {
-                align: 'right',
-                format: '{value:.1f}hPa',
-                reserveSpace: false,
-                style: {
-                    color: Highcharts.getOptions().colors[1]
-                },
-                x: 0
-            },
-            minRange: 2,
-            title: {
-                text: 'Pressure',
-                style: {
-                    color: Highcharts.getOptions().colors[1]
-                }
-            },
-            opposite: true
-        },
-        {
-            labels: {
-                align: 'left',
-                format: '{value:.1f}°C',
-                reserveSpace: false,
-                style: {
-                    color: Highcharts.getOptions().colors[0]
-                },
-                x: 0
-            },
-            minRange: 2,
-            title: {
-                text: 'Temperature',
-                style: {
-                    color: Highcharts.getOptions().colors[0]
-                }
-            },
-            opposite: false
-        }
-    ]
+    yAxis: []
 };

@@ -1,0 +1,74 @@
+{
+  "cards": [
+    {
+      "type": "sensor",
+      "subscribes": [
+        "home/rcr/sensors/bmp180/pressure",
+        "home/rcr/sensors/bmp180/temperature"
+      ],
+      "cardData": {
+        "name": "rcr/bmp180",
+        "fields": [
+          {"id": "temp", "name": "Temperature", "unit": "℃"},
+          {"id": "atm", "name": "Pressure", "unit": "hPa"}],
+        "chart": {
+          "name": "container",
+          "yAxis": [
+            {"color": "1", "fieldId": "atm"},
+            {"color": "0", "fieldId": "temp"}]
+        },
+        "fab": {"icon": "loop", "function": "alert()"}
+      }
+    },
+    {
+      "type": "led",
+      "subscribes": [
+        "home/rcr/something/led"
+      ],
+      "cardData": {
+        "colorlist": [
+          {
+            "value": "FF0000",
+            "label": "red",
+            "id": "ledRadioRed"
+          },
+          {
+            "value": "FF0F00",
+            "label": "orangered",
+            "id": "ledRadioOrangered"
+          },
+          {
+            "value": "00FF00",
+            "label": "green",
+            "id": "ledRadioGreen"
+          },
+          {
+            "value": "0000FF",
+            "label": "blue",
+            "id": "ledRadioBlue"
+          },
+          {
+            "value": "007FFF",
+            "label": "lightblue",
+            "id": "ledRadioLightBlue"
+          },
+          {
+            "value": "00FFFF",
+            "label": "cyan",
+            "id": "ledRadioCyan"
+          },
+          {
+            "value": "FFFFFF",
+            "label": "white",
+            "id": "ledRadioWhite"
+          },
+          {
+            "value": "FF9C95",
+            "label": "truewhite",
+            "id": "ledRadioTrueWhite"
+          }
+        ]
+      }
+    }
+  ]
+}
