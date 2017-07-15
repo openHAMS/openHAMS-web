@@ -177,7 +177,7 @@ with neutral, with a weight corresponding to the number in the name. */
 
 .highcharts-graph {
   fill: none;
-  stroke-width: 2px;
+  stroke-width: 1.5px;
   stroke-linecap: round;
   stroke-linejoin: round;
 }

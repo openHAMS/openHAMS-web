@@ -14,8 +14,8 @@
         "chart": {
           "name": "container",
           "yAxis": [
-            {"color": "1", "fieldId": "atm"},
-            {"color": "0", "fieldId": "temp"}]
+            {"color": "1", "fieldID": "atm"},
+            {"color": "0", "fieldID": "temp"}]
         },
         "fab": {"icon": "loop", "function": "alert()"}
       }
