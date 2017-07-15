@@ -1,144 +1,118 @@
-"use strict";
-var chart;
-
-Highcharts.setOptions({
-    global: {
-        useUTC: false
-    }
-});
-
-var stillUpdating = false;
-
-function afterSetExtremes(e) {
-    console.log(e.trigger);
-    if (e.trigger != 'undefined') {
-        if (!stillUpdating) {
-            let currExMin = (Math.round(e.min / 1000) * 1000);
-            let currExMax = (Math.round(e.max / 100) * 100);
-            stillUpdating = true;
-            chart.showLoading('Loading data from server...');
-            let jsonp = `jsonp?start=${currExMin}&end=${currExMax}&callback=?`;
-            console.log(jsonp);
-            $.getJSON(jsonp,
-                function(data) {
-                    chart.series[0].setData(data["pressure"]);
-                    chart.series[1].setData(data["temperature"]);
-                    chart.hideLoading();
-                    chart.reflow();
-                    stillUpdating = false;
-                });
-        }
-    }
-}
-
-//var options = [
-//    {name: 'Pressure', color: window.materialColors.brown['500'], unit: 'hPa'},
-//    {name: 'Temperature', color: window.materialColors.indigo['500'], unit: '℃'}];
-var chartID = 'container';
-
-function loadGraph(data) {
-    let seriesOptions = [];
-    //options.forEach(function (option, index){
-    //    seriesOptions.push({
-    //
-    //    });
-    //});
-    seriesOptions[0] = {
-        colorIndex: 1,
-        data: data["pressure"],
-        name: 'Pressure',
-        tooltip: {
-            valueSuffix: ' hPa'
-        },
-        yAxis: 0
-    };
-    seriesOptions[1] = {
-        colorIndex: 0,
-        data: data["temperature"],
-        name: 'Temperature',
-        tooltip: {
-            valueSuffix: ' ℃'
-        },
-        yAxis: 1
-    };
-
-    let yAxis = [];
-    yAxis[0] = {
-        className: 'highcharts-color-1',
-        labels: {
-            align: 'right',
-            format: '{value:.1f}hPa',
-            reserveSpace: false,
-            x: 0
-        },
-        minRange: 2,
-        title: { text: 'Pressure' },
-        opposite: true
-    };
-    yAxis[1] = {
-        className: 'highcharts-color-0',
-        labels: {
-            align: 'left',
-            format: '{value:.1f}°C',
-            reserveSpace: false,
-            x: 0
-        },
-        minRange: 2,
-        title: { text: 'Temperature' },
-        opposite: false
-    };
-
-    // copying default settings
-    let chartSettings = JSON.parse(JSON.stringify(defaultChartSettings));
-    chartSettings.chart.renderTo = 'container';
-    chartSettings.rangeSelector.selected = 3;
-
-    chartSettings.series = seriesOptions;
-    chartSettings.yAxis = yAxis;
-    chartSettings.xAxis.events.afterSetExtremes = afterSetExtremes;
-    chart = new Highcharts.StockChart(chartSettings);
-}
+'use strict';
 
 class Chart {
-    constructor(opts) {
+    constructor(cardData, url) {
         // variable containing Highstock chart object
         this.chart;
+        this.cardData = cardData;
+        this.url = String(url);
         // name of render place
-        this.container;
-        //
-        this.settings;
+        //this.containerID = containerID;
     }
 
-    _getFieldById(fields, id) {
-        for (var field in fields) {
-            if (field.id === id) {
-                return field;
-            }
-        }
-        return null;
+    initChart() {
+        // MUST init with data
+        $.getJSON(this._getJsonpUrl(), data => {
+            // copy default settings
+            let settings = JSON.parse(JSON.stringify(defaultChartSettings));
+
+            settings.chart.renderTo = String(this.cardData.chart.name);
+            settings.rangeSelector.selected = 3;
+            settings.series = this._generateSeriesSettings(this.cardData, data);
+            settings.yAxis = this._generateYAxisSettings(this.cardData);
+            //chartSettings.xAxis.events.afterSetExtremes = afterSetExtremes;
+            this.chart = new Highcharts.StockChart(settings);
+        });
     }
+
+    loadData() {
+        this.chart.showLoading('Loading data from server...');
+        $.getJSON(this._getJsonpUrl, data => {
+            this._setData(data);
+            this.chart.hideLoading();
+            this.chart.reflow();
+        });
+    }
+
+    _getJsonpUrl(argsObj) {
+        // 'jsonp' + '?' + (arg0 + '&') + (arg1 + '&') + 'callback=?'
+        argsObj = new Object(argsObj);
+        Object.assign(argsObj, { callback: '?' });
+        return (this.url + '?' + (
+            Object.keys(argsObj)
+            .map(argKey => {
+                return `${argKey}=${argsObj[argKey]}`;
+            })
+            .join('&')));
+    }
+
+    _setData(data, allSeries) {
+        this.cardData.fields.forEach(field => {
+            let allSeries = this.chart.series;
+            let lcname = field.name.toLowerCase();
+            let series = this._getSeriesByName(allSeries, lcname);
+            series.setData(data[lcname]);
+        });
+    }
+
+    _getAxisIDByTitle(axesData, title) {
+        return axesData.findIndex(axisData => {
+            return axisData.fieldID === title;
+        });
+    }
+
+    _getFieldByID(fields, id) {
+        return fields.find(field => {
+            return field.id === id;
+        });
+    }
+
+    _getSeriesByName(allSeries, name) {
+        return allSeries.find(series => {
+            return series.name.toLowerCase() === name.toLowerCase();
+        });
+    }
+    
 
     _generateSeriesSettings(cardData, data) {
         let seriesSettings = [];
-        cardData.fields.forEach((field) => {
+        cardData.fields.forEach(field => {
+            let yAxisID = this._getAxisIDByTitle(cardData.chart.yAxis, field.id);
             seriesSettings.push({
-                colorIndex: 1,  // TODO: chart.yAxis ?? color
-                data: field.name.toLowerCase(),  // change to data[]
+                colorIndex: cardData.chart.yAxis[yAxisID].color,
+                data: data[field.name.toLowerCase()],
                 name: field.name,
                 tooltip: {
                     valueSuffix: ` ${field.unit}`
                 },
-                yAxis: 0  // TODO: chart.yAxix ??
+                yAxis: yAxisID
             });
         });
         return seriesSettings;
+        //seriesOptions[0] = {
+        //    colorIndex: 1,
+        //    data: data["pressure"],
+        //    name: 'Pressure',
+        //    tooltip: {
+        //        valueSuffix: ' hPa'
+        //    },
+        //    yAxis: 0
+        //};
+        //seriesOptions[1] = {
+        //    colorIndex: 0,
+        //    data: data["temperature"],
+        //    name: 'Temperature',
+        //    tooltip: {
+        //        valueSuffix: ' ℃'
+        //    },
+        //    yAxis: 1
+        //};
     }
 
     _generateYAxisSettings(cardData) {
         let yAxisSettings = [];
-        const self = this;
         cardData.chart.yAxis.forEach((axis, index) => {
-            const field = self._getFieldById(cardData.fields, axis.fieldId);
+            const field = this._getFieldByID(cardData.fields, axis.fieldID);
             yAxisSettings.push({
                 className: `highcharts-color-${axis.color}`,
                 labels: {
@@ -177,6 +151,5 @@ class Chart {
         //    title: { text: 'Temperature' },
         //    opposite: false
         //};
-
     }
 }

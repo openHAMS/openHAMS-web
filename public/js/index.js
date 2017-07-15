@@ -1,4 +1,7 @@
-"use strict";
+'use strict';
+
+var charts = [];
+
 $(document).ready(function() {
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
     $('.modal').modal({
@@ -6,16 +9,16 @@ $(document).ready(function() {
             console.log(modal, trigger);
         },
         complete: function() {
-            console.log("closed");
+            console.log('closed');
         }
     });
-    let jsonp = `jsonp?callback=?`;
-    console.log(jsonp);
-    $.getJSON(jsonp,
-        function(recentData) {
-            loadGraph(recentData);
-        });
-
+    // TEMPORARY - while proper GET is not implemented
+    const CDs = JSON.parse('[{"name":"rcr/bmp180","fields":[{"id":"temp","name":"Temperature","unit":"℃"},{"id":"atm","name":"Pressure","unit":"hPa"}],"chart":{"name":"container","yAxis":[{"color":"1","fieldID":"atm"},{"color":"0","fieldID":"temp"}]},"fab":{"icon":"loop","function":"alert()"}}]')    
+    CDs.forEach(cardData => {
+        let chart = new Chart(cardData, 'jsonp');
+        chart.initChart();
+        charts.push(chart);
+    });
 });
 
 var socket = io();
