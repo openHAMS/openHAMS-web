@@ -20,14 +20,23 @@ class Chart {
             settings.rangeSelector.selected = 3;
             settings.series = this._generateSeriesSettings(this.cardData, data);
             settings.yAxis = this._generateYAxisSettings(this.cardData);
-            //chartSettings.xAxis.events.afterSetExtremes = afterSetExtremes;
+            // lambda, so i can use 'this'
+            settings.xAxis.events.afterSetExtremes = (e) => {
+                console.log(e.trigger);
+                if (e.trigger != 'undefined') {
+                    let rangeStart = (Math.round(e.min / 1000) * 1000);
+                    let rangeEnd = (Math.round(e.max / 1000) * 1000);
+                    let argsObj = { start: rangeStart, end: rangeEnd };
+                    this.loadData(argsObj);
+                }
+            };
             this.chart = new Highcharts.StockChart(settings);
         });
     }
 
-    loadData() {
+    loadData(jsonArgsObj) {
         this.chart.showLoading('Loading data from server...');
-        $.getJSON(this._getJsonpUrl, data => {
+        $.getJSON(this._getJsonpUrl(jsonArgsObj), data => {
             this._setData(data);
             this.chart.hideLoading();
             this.chart.reflow();
