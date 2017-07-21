@@ -50,7 +50,7 @@ var defaultChartSettings = {
     },
     plotOptions: {
         series: {
-            gapSize: 400
+            gapSize: 2
         }
     },
     scrollbar: {
