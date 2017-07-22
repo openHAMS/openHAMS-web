@@ -3,6 +3,7 @@ const fs = require('fs');
 
 const express = require('express');
 const app = express();
+const favicon = require('serve-favicon');
 const http = require('http');
 const pug = require('pug');
 
@@ -41,6 +42,7 @@ mqtt.on('message', function(topic, message) {
 
 app.use(express.static('public'));
 app.use('/static', express.static('public'));
+app.use(favicon(__dirname + '/public/icons/favicon.ico'));
 
 app.set('view engine', 'pug');
 
