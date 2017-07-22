@@ -1,4 +1,4 @@
-mixin sensorcard(name, fields, chart, fab)
+mixin sensorcard(title, fields, chart, fab)
     .col.s12.m6.l4
         .card
             if chart
@@ -8,7 +8,7 @@ mixin sensorcard(name, fields, chart, fab)
                         button.btn-floating.halfway-fab.waves-effect.waves-light.blue.modal-trigger(onclick=fab.function)
                             i.material-icons= fab.icon
             .card-content.grey-text.text-darken-3
-                span.card-title.grey-text= name
+                span.card-title.grey-text= title
                 table.striped.grey-text.text-darken-1
                     tbody
                         each field in fields

@@ -7,7 +7,7 @@
         "home/rcr/sensors/bmp180/temperature"
       ],
       "cardData": {
-        "name": "rcr/bmp180",
+        "title": "rcr/bmp180",
         "fields": [
           {"id": "temp", "name": "Temperature", "unit": "℃"},
           {"id": "atm", "name": "Pressure", "unit": "hPa"}],
