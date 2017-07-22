@@ -17,12 +17,10 @@ function writeDatabase(measurement, room, value) {
     });
 }
 
-function addListener() {
-    client.on('message', function(topic, message) {
-        var arr = topic.toString().split('/');
-        // home, rcr, sensors, bmp180, temperature
-        writeDatabase(arr[4], arr[1], message);
-    });
+function messageCallback(topic, message) {
+    let arr = topic.toString().split('/');
+    // home, rcr, sensors, bmp180, temperature
+    writeDatabase(arr[4], arr[1], message);
 }
 
 
@@ -71,8 +69,8 @@ influx.getDatabaseNames()
         }
     })
     .then(() => {
-        console.log("listening...")
-        addListener()
+        console.log("listening...");
+        client.on('message', messageCallback);
     })
     .catch(err => {
         console.error(`Error creating Influx database!`);
