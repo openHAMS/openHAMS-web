@@ -1,3 +1,7 @@
+.card .card-content {
+    padding: 10px 24px 24px 24px;
+    border-radius: 0 0 2px 2px
+}
 data {
     font-color: #212121;
     font-weight: 500;

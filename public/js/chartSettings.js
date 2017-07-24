@@ -1,9 +1,17 @@
 var defaultChartSettings = {
     chart: {
         defaultSeriesType: 'spline',
+        margin: [10, 25, 15, 25],
         style: {
             fontFamily: 'Roboto',
             fontWeight: 400
+        },
+        events: {}
+    },
+    credits: {
+        position: {
+            align: 'left',
+            x: 20
         }
     },
     navigator: {
@@ -50,7 +58,7 @@ var defaultChartSettings = {
     },
     plotOptions: {
         series: {
-            gapSize: 2
+            gapSize: 0
         }
     },
     scrollbar: {
@@ -58,7 +66,7 @@ var defaultChartSettings = {
     },
     xAxis: {
         events: {},
-        ordinal: false
+        ordinal: true
     },
     tooltip: {
         valueDecimals: 2

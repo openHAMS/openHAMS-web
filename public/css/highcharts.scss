@@ -133,11 +133,9 @@ $highlight-color-10: #e6ebf5; /* Pressed button, color axis min color. */
     cursor: pointer;
     fill: $neutral-color-40;
     font-size: 0.7em;
-    transition: fill 250ms, font-size 250ms;
 }
 .highcharts-credits:hover {
     fill: black;
-    font-size: 1em;
 }
 
 /* Tooltip */
