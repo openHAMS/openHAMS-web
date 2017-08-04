@@ -6,6 +6,7 @@ class Chart {
         this.chart;
         this.cardData = cardData;
         this.url = String(url);
+        this.loaded = false;
         // name of render place
         //this.containerID = containerID;
     }
@@ -17,15 +18,17 @@ class Chart {
             let settings = JSON.parse(JSON.stringify(defaultChartSettings));
 
             settings.chart.renderTo = String(this.cardData.chart.name);
+            settings.chart.events.load = () => { this.loaded = true; };
             settings.rangeSelector.selected = 3;
             settings.series = this._generateSeriesSettings(this.cardData, data);
             settings.yAxis = this._generateYAxisSettings(this.cardData);
             // lambda, so i can use 'this'
             settings.xAxis.events.afterSetExtremes = (e) => {
                 console.log(e.trigger);
-                if (e.trigger != 'undefined') {
-                    let rangeStart = (Math.round(e.min / 1000) * 1000);
-                    let rangeEnd = (Math.round(e.max / 1000) * 1000);
+                console.log('min: ', e.min, 'max: ', e.max);
+                if (e.trigger !== undefined) {
+                    let rangeStart = (Math.round(e.min / 10) * 10);
+                    let rangeEnd = (Math.round(e.max / 10) * 10);
                     let argsObj = { start: rangeStart, end: rangeEnd };
                     this.loadData(argsObj);
                 }
@@ -49,10 +52,10 @@ class Chart {
         Object.assign(argsObj, { callback: '?' });
         return (this.url + '?' + (
             Object.keys(argsObj)
-            .map(argKey => {
-                return `${argKey}=${argsObj[argKey]}`;
-            })
-            .join('&')));
+                .map(argKey => {
+                    return `${argKey}=${argsObj[argKey]}`;
+                })
+                .join('&')));
     }
 
     _setData(data, allSeries) {
@@ -60,7 +63,7 @@ class Chart {
             let allSeries = this.chart.series;
             let lcname = field.name.toLowerCase();
             let series = this._getSeriesByName(allSeries, lcname);
-            series.setData(data[lcname]);
+            series.setData(data[lcname].slice(1, -1));
         });
     }
 
@@ -88,8 +91,8 @@ class Chart {
         cardData.fields.forEach(field => {
             let yAxisID = this._getAxisIDByTitle(cardData.chart.yAxis, field.id);
             seriesSettings.push({
-                colorIndex: cardData.chart.yAxis[yAxisID].color,
-                data: data[field.name.toLowerCase()],
+                colorIndex: parseInt(cardData.chart.yAxis[yAxisID].color),
+                data: data[field.name.toLowerCase()].slice(1, -1),
                 name: field.name,
                 tooltip: {
                     valueSuffix: ` ${field.unit}`
@@ -97,6 +100,16 @@ class Chart {
                 yAxis: yAxisID
             });
         });
+        // adding hidden series (on hidden yAxis) for extremes
+        cardData.fields.forEach(field => {
+            let edges = data[field.name.toLowerCase()].slice(0, 1).concat(data[field.name.toLowerCase()].slice(-2, -1));
+            seriesSettings.push({
+                data: edges,
+                visible: false,
+                yAxis: cardData.fields.length
+            });
+        });
+
         return seriesSettings;
         //seriesOptions[0] = {
         //    colorIndex: 1,
@@ -134,6 +147,10 @@ class Chart {
                 title: { text: field.name },
                 opposite: !(index % 2)
             });
+        });
+        // adding hidden axis for extremes
+        yAxisSettings.push({
+            visible: false
         });
         return yAxisSettings;
         //yAxis[0] = {
