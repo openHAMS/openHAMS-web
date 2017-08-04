@@ -6,4 +6,4 @@
 (!!window.Materialize) || document.write('<link rel="stylesheet" type="text/css" href="/static/css/lib/materialize.min.css">');
 (!!window.Materialize) || document.write('<script type="text/javascript" src="/static/js/lib/materialize.min.js"><\/script>');
 
-(!!window.socket) || document.write('<script type="text/javascript" src="/socket.io/socket.io.js"><\/script>');
+(!!window.io) || document.write('<script type="text/javascript" src="/socket.io/socket.io.js"><\/script>');
