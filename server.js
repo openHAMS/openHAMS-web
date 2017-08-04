@@ -1,5 +1,5 @@
 'use strict';
-const fs = require('fs');
+const path = require('path');
 
 const express = require('express');
 const app = express();
@@ -26,7 +26,7 @@ const subscribeList = [
     'home/rcr/sensors/bmp180/temperature'
 ];
 
-const config = JSON.parse(fs.readFileSync('config.json', 'utf8'));
+const config = jsonfile.readFileSync('config.json', 'utf8');
 
 
 mqtt.on('connect', function() {
@@ -44,32 +44,12 @@ mqtt.on('message', function(topic, message) {
 
 app.use(express.static('public'));
 app.use('/static', express.static('public'));
-app.use(favicon(__dirname + '/public/icons/favicon.ico'));
+app.use(favicon(path.join(__dirname, '/public/icons/favicon.ico')));
 
 app.set('view engine', 'pug');
 
 app.get('/', function(req, res) {
     res.render('index', config);
-});
-
-app.get('/json', function(req, res) {
-    var start = req.query.start;
-    var end = req.query.end;
-    db.getInfluxDataAsync(subscribeList, start, end)
-        .then(data => {
-            res.json(data);
-        })
-        .catch(console.error);
-});
-
-app.get('/jsonp', function(req, res) {
-    var start = req.query.start;
-    var end = req.query.end;
-    db.getInfluxDataAsync(subscribeList, start, end)
-        .then(data => {
-            res.jsonp(data);
-        })
-        .catch(console.error);
 });
 
 app.use('/api/cards', routegen.CardRouter(config, db));
