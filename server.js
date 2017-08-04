@@ -52,18 +52,8 @@ app.get('/', function(req, res) {
 app.use('/api/cards', routegen.CardRouter(config, db));
 
 
-var PING_URL = 'http://ipecho.net/plain';
-var OWN_URL = 'http://racerzeroone.duckdns.org/';
-http.get(PING_URL, function(res) {
-    res.on('data', function(data) {
-        console.log('================================================================================');
-        console.log(`    ip:  ${data}:8081`);
-        console.log(`    url: ${OWN_URL}`);
-        console.log('================================================================================');
-    }).setEncoding('utf8');
-});
-
-
 server.listen(8081, function() {
-    console.log('listening');
+    console.log('================================');
+    console.log('           listening            ');
+    console.log('================================');
 });
