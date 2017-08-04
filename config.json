@@ -1,26 +1,39 @@
 {
   "cards": [
     {
+      "name": "pressure",
       "type": "sensor",
       "subscribes": [
-        "home/rcr/sensors/bmp180/pressure",
-        "home/rcr/sensors/bmp180/temperature"
+        "home/rcr/sensors/bmp180/pressure"
       ],
       "cardData": {
-        "title": "rcr/bmp180",
-        "fields": [
-          {"id": "temp", "name": "Temperature", "unit": "℃"},
-          {"id": "atm", "name": "Pressure", "unit": "hPa"}],
+        "title": "rcr/pressure",
+        "fields": [{"id": "atm", "name": "Pressure", "unit": "hPa"}],
         "chart": {
-          "name": "container",
-          "yAxis": [
-            {"color": "1", "fieldID": "atm"},
-            {"color": "0", "fieldID": "temp"}]
+          "name": "pressureChart",
+          "yAxis": [{"color": "1", "fieldID": "atm"}]
         },
         "fab": {"icon": "loop", "function": "alert()"}
       }
     },
     {
+      "name": "temperature",
+      "type": "sensor",
+      "subscribes": [
+        "home/rcr/sensors/bmp180/temperature"
+      ],
+      "cardData": {
+        "title": "rcr/temperature",
+        "fields": [{"id": "temp", "name": "Temperature", "unit": "°C"}],
+        "chart": {
+          "name": "temperatureChart",
+          "yAxis": [{"color": "0", "fieldID": "temp"}]
+        },
+        "fab": {"icon": "loop", "function": "alert()"}
+      }
+    },
+    {
+      "name": "led1",
       "type": "led",
       "subscribes": [
         "home/rcr/something/led"
