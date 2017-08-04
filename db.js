@@ -95,8 +95,8 @@ class db {
     async _transformInfluxData(resultsPromise, measurements) {
     // Transforms data to simpler format, cutting the irrelevant parts out
         let results = await resultsPromise;
+        // fixing single-query objects by putting it into an array of 1
         if (typeof results.group != 'undefined') {
-            // fixing single-query objects by putting it into an array of 1
             results = [results];
         }
         let data = {};

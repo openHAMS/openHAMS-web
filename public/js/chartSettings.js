@@ -3,6 +3,8 @@ var defaultChartSettings = {
         ignoreHiddenSeries: false,
         margin: [10, 25, 15, 25],
         type: 'spline',
+        pinchType: 'none',
+        zoomType: 'none',
         events: {}
     },
     credits: false,
