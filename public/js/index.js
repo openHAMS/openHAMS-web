@@ -18,12 +18,16 @@ $(document).ready(function() {
             console.log('closed');
         }
     });
-    // TEMPORARY - while proper GET is not implemented
-    const CDs = JSON.parse('[{"name":"rcr/bmp180","fields":[{"id":"temp","name":"Temperature","unit":"℃"},{"id":"atm","name":"Pressure","unit":"hPa"}],"chart":{"name":"container","yAxis":[{"color":"1","fieldID":"atm"},{"color":"0","fieldID":"temp"}]},"fab":{"icon":"loop","function":"alert()"}}]')    
-    CDs.forEach(cardData => {
-        let chart = new Chart(cardData, 'jsonp');
-        chart.initChart();
-        charts.push(chart);
+    let cardUrl = 'api/cards';
+    $.getJSON(cardUrl, cards => {
+        cards.forEach(card => {
+            if (card.cardData.chart !== undefined) {
+                let name = card.name;
+                let chart = new Chart(card.cardData, `${cardUrl}/${name}/data`);
+                chart.initChart();
+                charts.push(chart);
+            }
+        });
     });
 });
 
@@ -45,6 +49,11 @@ function changeStatus(text, style) {
 }
 socket.on('home/rcr/sensors/bmp180/pressure', function(a) {
     document.getElementById('atm').textContent = parseFloat(a).toFixed(1);
+    //if (charts[0].loaded) {
+    //    var asd = Date.now();
+    //    charts[0].chart.series[1].addPoint([Date.now(), parseFloat(a)], false, false);
+    //    //charts[0].chart.redraw();
+    //}
 });
 socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
     document.getElementById('temp').textContent = parseFloat(t).toFixed(1);

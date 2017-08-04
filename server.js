@@ -11,6 +11,8 @@ const jsonfile = require('jsonfile')
 const server = http.Server(app);
 const io = require('socket.io')(server);
 
+const routegen = require('./route-generator.js');
+
 const Mqtt = require('mqtt');
 const mqtt = Mqtt.connect('mqtt://127.0.0.1:1883');
 
@@ -69,6 +71,8 @@ app.get('/jsonp', function(req, res) {
         })
         .catch(console.error);
 });
+
+app.use('/api/cards', routegen.CardRouter(config, db));
 
 
 var PING_URL = 'http://ipecho.net/plain';
