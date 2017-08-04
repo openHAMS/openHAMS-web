@@ -1,21 +1,19 @@
 var defaultChartSettings = {
     chart: {
-        defaultSeriesType: 'spline',
+        ignoreHiddenSeries: false,
         margin: [10, 25, 15, 25],
-        style: {
-            fontFamily: 'Roboto',
-            fontWeight: 400
-        },
+        type: 'spline',
         events: {}
     },
-    credits: {
-        position: {
-            align: 'left',
-            x: 20
-        }
-    },
+    credits: false,
     navigator: {
         enabled: false
+    },
+    plotOptions: {
+        connectNulls: false,
+        series: {
+            gapSize: 4
+        }
     },
     rangeSelector: {
         allButtonsEnabled: true,
@@ -56,13 +54,9 @@ var defaultChartSettings = {
             }
         ]
     },
-    plotOptions: {
-        series: {
-            gapSize: 0
-        }
-    },
     scrollbar: {
-        enabled: true
+        enabled: true,
+        liveRedraw: false
     },
     xAxis: {
         events: {},

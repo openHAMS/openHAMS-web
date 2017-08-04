@@ -55,6 +55,7 @@ with neutral, with a weight corresponding to the number in the name. */
 }
 
 .highcharts-root text {
+  font-family: 'Roboto', sans-serif;
   stroke-width: 0;
 }
 
