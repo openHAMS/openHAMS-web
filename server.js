@@ -13,25 +13,22 @@ const io = require('socket.io')(server);
 
 const routegen = require('./route-generator.js');
 
+// connecting to MQTT
 const Mqtt = require('mqtt');
 const mqtt = Mqtt.connect('mqtt://127.0.0.1:1883');
 
+// connecting to InfluxDB
 const DB = require('./db.js');
 const db = new DB('127.0.0.1', 'sensors');
 
-
-// var ledColor = '#00000000';
-const subscribeList = [
-    'home/rcr/sensors/bmp180/pressure',
-    'home/rcr/sensors/bmp180/temperature'
-];
-
+// loading config & MQTT subscribes
 const config = jsonfile.readFileSync('config.json', 'utf8');
+const subscribes = config.cards.map(c => c.subscribes).reduce((a, b) => a.concat(b))
 
 
 mqtt.on('connect', function() {
     console.log('mqtt conn:');
-    subscribeList.forEach(s => {
+    subscribes.forEach(s => {
         console.log(`    ${s}`);
         mqtt.subscribe(s);
     });
