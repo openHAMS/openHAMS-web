@@ -108,7 +108,54 @@ class db {
         return data;
     }
 
-///////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    async getInfluxExtremesAsync(subscribes) {
+        // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
+        let measurements = await this._getMeasurements(subscribes);
+
+        // making queries
+        //let resolution = this._getResolution(dataStart, dataEnd);
+        let qStart = measurements.map(m => {
+            return `SELECT value FROM ${m} ORDER BY asc LIMIT 1`;
+            //return this._makeEdgeQuery(m, resolution, true);
+        });
+        let qEnd = measurements.map(m => {
+            return `SELECT value FROM ${m} ORDER BY desc LIMIT 1`;
+            //return this._makeEdgeQuery(m, resolution, false);
+        });
+
+        // getting extremes
+        let [dbStart, dbEnd] = await Promise.all([
+            this._transformInfluxData(this.influx.query(qStart), measurements),
+            this._transformInfluxData(this.influx.query(qEnd), measurements)
+        ]);
+        // setting values to null
+        Object.keys(dbStart).forEach(function(key) {
+            // [key] iterating through measurements
+            // [0]   the sole value of that measurement
+            // [1]   the value of that sole measurement (other [0] is timestamp)
+            dbStart[key][0][1] = null;
+            dbEnd[key][0][1] = null;
+            // concat end to start
+            dbStart[key] = dbStart[key].concat(dbEnd[key]);
+        });
+        return dbStart;
+    }
+
+    async getInfluxData2Async(subscribes, dataStart, dataEnd) {
+        // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
+        let measurements = await this._getMeasurements(subscribes);
+
+        // making queries
+        let qData = measurements.map(m => {
+            return this._makeDataQuery(m, dataStart, dataEnd);
+        });
+
+        // getting data
+        let dbData = await this._transformInfluxData(this.influx.query(qData), measurements);
+        return dbData;
+    }
+
     async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
         // measurements
         let measurements = await this._getMeasurements(subscribeList);
@@ -152,6 +199,7 @@ class db {
                 this._transformInfluxData(this.influx.query(qData), measurements),
                 this._transformInfluxData(this.influx.query(qStart), measurements)
             ]);
+
             Object.keys(dbData).forEach(function(key) {
                 dbData[key] = dbStart[key].concat(dbData[key]);
             });
