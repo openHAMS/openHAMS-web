@@ -16,23 +16,14 @@ class Chart {
         $.getJSON(this._getJsonpUrl(), data => {
             // copy default settings
             let settings = JSON.parse(JSON.stringify(defaultChartSettings));
-
+            // settings
             settings.chart.renderTo = String(this.cardData.chart.name);
             settings.chart.events.load = () => { this.loaded = true; };
             settings.rangeSelector.selected = 3;
             settings.series = this._generateSeriesSettings(this.cardData, data);
             settings.yAxis = this._generateYAxisSettings(this.cardData);
-            // lambda, so i can use 'this'
-            settings.xAxis.events.afterSetExtremes = (e) => {
-                console.log(e.trigger);
-                console.log('min: ', e.min, 'max: ', e.max);
-                if (e.trigger !== undefined) {
-                    let rangeStart = (Math.round(e.min / 10) * 10);
-                    let rangeEnd = (Math.round(e.max / 10) * 10);
-                    let argsObj = { start: rangeStart, end: rangeEnd };
-                    this.loadData(argsObj);
-                }
-            };
+            // bind to 'this'
+            settings.xAxis.events.afterSetExtremes = this._afterSetExtremesHandler.bind(this);
             this.chart = new Highcharts.StockChart(settings);
         });
     }
@@ -44,6 +35,17 @@ class Chart {
             this.chart.hideLoading();
             this.chart.reflow();
         });
+    }
+
+    _afterSetExtremesHandler(e) {
+        console.log(e.trigger);
+        console.log('min: ', e.min, 'max: ', e.max);
+        if (e.trigger !== undefined) {
+            let rangeStart = (Math.round(e.min / 10) * 10);
+            let rangeEnd = (Math.round(e.max / 10) * 10);
+            let argsObj = { start: rangeStart, end: rangeEnd };
+            this.loadData(argsObj);
+        }
     }
 
     _getJsonpUrl(argsObj) {
@@ -84,7 +86,6 @@ class Chart {
             return series.name.toLowerCase() === name.toLowerCase();
         });
     }
-    
 
     _generateSeriesSettings(cardData, data) {
         let seriesSettings = [];
@@ -109,7 +110,6 @@ class Chart {
                 yAxis: cardData.fields.length
             });
         });
-
         return seriesSettings;
         //seriesOptions[0] = {
         //    colorIndex: 1,
