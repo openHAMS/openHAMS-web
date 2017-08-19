@@ -1,6 +1,6 @@
 'use strict';
 
-var charts = [];
+const charts = [];
 
 Highcharts.setOptions({
     global: {
@@ -25,13 +25,16 @@ $(document).ready(function() {
                 let name = card.name;
                 let chart = new Chart(card.cardData, `${cardUrl}/${name}/data`);
                 chart.initChart();
+                // adding FAB onclick; bind 'this' to chart
+                document.getElementById(`${card.cardData.chart.name}-fab`)
+                    .addEventListener('click', chart.fabHandler.bind(chart));
                 charts.push(chart);
             }
         });
     });
 });
 
-var socket = io();
+const socket = io();
 socket.on('connect', function() {
     changeStatus('Connected', 'connect');
 });

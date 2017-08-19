@@ -9,7 +9,7 @@ class db {
     }
 
     _filterMeasurements(subscribeList, names) {
-    // Returns intersection between monitored and available measurements
+        // Returns intersection between monitored and available measurements
         let availableMeasurements = subscribeList.map(mqttAddr => {
             // Getting measurement names from mqtt addresses
             let mqttSplit = mqttAddr.split('/');
@@ -21,7 +21,7 @@ class db {
     }
 
     async _getMeasurements(subscribeList) {
-    // Returns measurements, which are both available & monitored
+        // Returns measurements, which are both available & monitored
         let measurements = await this.influx.getMeasurements()
             .then(names => {
                 return this._filterMeasurements(subscribeList, names);
@@ -30,7 +30,7 @@ class db {
     }
 
     _getResolution(start, end) {
-    // Returns data resolution in sec from data duration
+        // Returns data resolution in sec from data duration
         // duration conversion ns to h
         let duration = (end - start) / (60 * 60 * 1000);
         let res = 75;
@@ -56,7 +56,7 @@ class db {
     }
 
     _makeDataQuery(measurement, start, end) {
-    // Generates query string for getting data with proper resolution
+        // Generates query string for getting data with proper resolution
         if (start == null || end == null) {
             return `SELECT MEAN(value) AS value FROM ${measurement} ` +
                 `WHERE time > now() - 6h ` +
@@ -83,7 +83,7 @@ class db {
     }
 
     _makeEdgeQuery(measurement, t, isStart) {
-    // Generates query for getting first or last avg data depending on isStart
+        // Generates query for getting first or last avg data depending on isStart
         let order = isStart ? 'asc' : 'desc';
         let q = `SELECT MEAN(value) AS value ` +
             `FROM (SELECT value FROM ${measurement} ORDER BY ${order} LIMIT 3000) ` +
@@ -93,7 +93,7 @@ class db {
     }
 
     async _transformInfluxData(resultsPromise, measurements) {
-    // Transforms data to simpler format, cutting the irrelevant parts out
+        // Transforms data to simpler format, cutting the irrelevant parts out
         let results = await resultsPromise;
         // fixing single-query objects by putting it into an array of 1
         if (typeof results.group != 'undefined') {
@@ -108,7 +108,7 @@ class db {
         return data;
     }
 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async getInfluxExtremesAsync(subscribes) {
         // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
         let measurements = await this._getMeasurements(subscribes);
@@ -186,7 +186,7 @@ class db {
                 dbStart[key][0][1] = null;
             });
             Object.keys(dbEnd).forEach(function(key) {
-                dbEnd[key][0][0] = Math.ceil(dbEnd[key][0][0]/1000000)*1000000
+                dbEnd[key][0][0] = Math.ceil(dbEnd[key][0][0] / 1000000) * 1000000
                 dbEnd[key][0][1] = null;
             });
 

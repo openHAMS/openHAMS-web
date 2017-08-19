@@ -18,7 +18,9 @@ class Chart {
             let settings = JSON.parse(JSON.stringify(defaultChartSettings));
             // settings
             settings.chart.renderTo = String(this.cardData.chart.name);
-            settings.chart.events.load = () => { this.loaded = true; };
+            settings.chart.events.load = () => {
+                this.loaded = true;
+            };
             settings.rangeSelector.selected = 3;
             settings.series = this._generateSeriesSettings(this.cardData, data);
             settings.yAxis = this._generateYAxisSettings(this.cardData);
@@ -26,6 +28,13 @@ class Chart {
             settings.xAxis.events.afterSetExtremes = this._afterSetExtremesHandler.bind(this);
             this.chart = new Highcharts.StockChart(settings);
         });
+    }
+
+    fabHandler() {
+        if (typeof this.cardData.fab !== 'undefined' && typeof this.cardData.fab.function !== 'undefined') {
+            let fabAction = new Function('self', this.cardData.fab.function);
+            fabAction(this);
+        }
     }
 
     loadData(jsonArgsObj) {
@@ -43,7 +52,10 @@ class Chart {
         if (e.trigger !== undefined) {
             let rangeStart = (Math.round(e.min / 10) * 10);
             let rangeEnd = (Math.round(e.max / 10) * 10);
-            let argsObj = { start: rangeStart, end: rangeEnd };
+            let argsObj = {
+                start: rangeStart,
+                end: rangeEnd
+            };
             this.loadData(argsObj);
         }
     }
@@ -51,13 +63,15 @@ class Chart {
     _getJsonpUrl(argsObj) {
         // 'jsonp' + '?' + (arg0 + '&') + (arg1 + '&') + 'callback=?'
         argsObj = new Object(argsObj);
-        Object.assign(argsObj, { callback: '?' });
+        Object.assign(argsObj, {
+            callback: '?'
+        });
         return (this.url + '?' + (
             Object.keys(argsObj)
-                .map(argKey => {
-                    return `${argKey}=${argsObj[argKey]}`;
-                })
-                .join('&')));
+            .map(argKey => {
+                return `${argKey}=${argsObj[argKey]}`;
+            })
+            .join('&')));
     }
 
     _setData(data, allSeries) {
@@ -144,7 +158,9 @@ class Chart {
                     x: 0
                 },
                 minRange: 2,
-                title: { text: field.name },
+                title: {
+                    text: field.name
+                },
                 opposite: !(index % 2)
             });
         });

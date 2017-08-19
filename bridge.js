@@ -31,8 +31,7 @@ client.on('connect', function() {
 const influx = new Influx.InfluxDB({
     host: 'localhost',
     database: 'sensors',
-    schema: [
-        {
+    schema: [{
             measurement: 'pressure',
             fields: {
                 value: Influx.FieldType.FLOAT

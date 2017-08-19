@@ -2,33 +2,43 @@
     padding: 10px 24px 24px 24px;
     border-radius: 0 0 2px 2px
 }
+
 data {
     font-color: #212121;
     font-weight: 500;
 }
+
 div.chart {
     height: 15em;
     width: 100%;
 }
+
 status {
     font-weight: 400;
     margin-left: 0.33em;
 }
+
 status.connect {
     color: #4CAF50;
 }
+
 status.connect_error {
     color: #FF5722;
 }
+
 status.reconnect_attempt {
     color: #FFC107;
 }
+
 .disabled {
     pointer-events: none;
 }
+
 .ledstatusbg {
     height: 3px;
 }
+
 .ledstatus {
-    height: 100%; width: 100%;
+    height: 100%;
+    width: 100%;
 }
