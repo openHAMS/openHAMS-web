@@ -1,5 +1,6 @@
 var defaultChartSettings = {
     chart: {
+        alignTicks: false,
         ignoreHiddenSeries: false,
         margin: [10, 25, 15, 25],
         type: 'spline',
@@ -12,8 +13,9 @@ var defaultChartSettings = {
         enabled: false
     },
     plotOptions: {
-        connectNulls: false,
+        //connectNulls: false,
         series: {
+            dataGrouping: { enabled: false },
             gapSize: 4
         }
     },
