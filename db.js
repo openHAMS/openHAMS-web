@@ -33,7 +33,7 @@ class db {
         // Returns data resolution in sec from data duration
         // duration conversion ns to h
         let duration = (end - start) / (60 * 60 * 1000);
-        let res = 75;
+        let res = 120;
         if (duration < 0.5) {
             // 1m - raw data
             return 0;
@@ -45,7 +45,7 @@ class db {
             return 3 * res;
         } else if (duration < 9) {
             // 6h - 7.5m
-            return 9 * res;
+            return 6 * res;
         } else if (duration < 18) {
             // 12h - 15m
             return 12 * res;
@@ -60,15 +60,17 @@ class db {
         if (start == null || end == null) {
             return `SELECT MEAN(value) AS value FROM ${measurement} ` +
                 `WHERE time > now() - 6h ` +
-                `GROUP BY time(5m) fill(none)`;
+                `GROUP BY time(720s) fill(none)`;
         }
+        let t = this._getResolution(start, end);
         start = parseInt(start);
         end = parseInt(end);
+        // making upper time inclusive by adding tyme of one extra value
+        end += t;
         // right padding
         let startStr = String(start + '0000000000000000000').substring(0, 19);
         let endStr = String(end + '0000000000000000000').substring(0, 19);
 
-        let t = this._getResolution(start, end);
         let q;
         if (t === 0) {
             // 1m - raw data
@@ -169,6 +171,7 @@ class db {
             return this._makeEdgeQuery(m, duration, false);
         });
         let qData = measurements.map(m => {
+            console.log(this._makeDataQuery(m, dataStart, dataEnd));
             return this._makeDataQuery(m, dataStart, dataEnd);
         });
 
