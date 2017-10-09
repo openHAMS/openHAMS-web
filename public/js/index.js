@@ -23,7 +23,7 @@ $(document).ready(function() {
         cards.forEach(card => {
             if (card.cardData.chart !== undefined) {
                 let name = card.name;
-                let chart = new Chart(card.cardData, `${cardUrl}/${name}/data`);
+                let chart = new Chart(card.cardData, `${cardUrl}/${name}`);
                 chart.initChart();
                 // adding FAB onclick; bind 'this' to chart
                 document.getElementById(`${card.cardData.chart.name}-fab`)
@@ -60,6 +60,9 @@ socket.on('home/rcr/sensors/bmp180/pressure', function(a) {
 });
 socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
     document.getElementById('temp').textContent = parseFloat(t).toFixed(1);
+});
+socket.on('home/rcr/sensors/tsl2561/light', function(t) {
+    document.getElementById('lgt').textContent = parseFloat(t).toFixed(1);
 });
 
 

@@ -13,7 +13,7 @@ class Chart {
 
     initChart() {
         // MUST init with data
-        $.getJSON(this._getJsonpUrl(), data => {
+        $.getJSON(this._getExtremesUrl(), extremes => {
             // copy default settings
             let settings = JSON.parse(JSON.stringify(defaultChartSettings));
             // settings
@@ -22,11 +22,12 @@ class Chart {
                 this.loaded = true;
             };
             settings.rangeSelector.selected = 3;
-            settings.series = this._generateSeriesSettings(this.cardData, data);
+            settings.series = this._generateSeriesSettings(this.cardData, extremes);
             settings.yAxis = this._generateYAxisSettings(this.cardData);
             // bind to 'this'
             settings.xAxis.events.afterSetExtremes = this._afterSetExtremesHandler.bind(this);
             this.chart = new Highcharts.StockChart(settings);
+            this.loadData();
         });
     }
 
@@ -39,19 +40,24 @@ class Chart {
 
     loadData(jsonArgsObj) {
         this.chart.showLoading('Loading data from server...');
-        $.getJSON(this._getJsonpUrl(jsonArgsObj), data => {
-            this._setData(data);
+        console.log("http://racerzeroone.duckdns.org/" + this._getDataUrl(jsonArgsObj));
+        $.getJSON(this._getDataUrl(jsonArgsObj), data => {
+            this._setData(data, true, false, false);
             this.chart.hideLoading();
-            this.chart.reflow();
+            //this.chart.reflow();
+            console.log("loaded")
         });
     }
 
     _afterSetExtremesHandler(e) {
         console.log(e.trigger);
-        console.log('min: ', e.min, 'max: ', e.max);
         if (e.trigger !== undefined) {
-            let rangeStart = (Math.round(e.min / 10) * 10);
-            let rangeEnd = (Math.round(e.max / 10) * 10);
+            let start = new Date(e.min);
+            let end = new Date(e.max);
+            console.log(`min: ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()} : ${e.min}`);
+            console.log(`max: ${  end.getHours()}:${  end.getMinutes()}:${  end.getSeconds()} : ${e.max}`)
+            let rangeStart = (Math.ceil(e.min / 10) * 10);
+            let rangeEnd = (Math.ceil(e.max / 10) * 10);
             let argsObj = {
                 start: rangeStart,
                 end: rangeEnd
@@ -60,18 +66,22 @@ class Chart {
         }
     }
 
-    _getJsonpUrl(argsObj) {
+    _getDataUrl(argsObj) {
         // 'jsonp' + '?' + (arg0 + '&') + (arg1 + '&') + 'callback=?'
         argsObj = new Object(argsObj);
         Object.assign(argsObj, {
             callback: '?'
         });
-        return (this.url + '?' + (
-            Object.keys(argsObj)
+        let args = Object.keys(argsObj)
             .map(argKey => {
                 return `${argKey}=${argsObj[argKey]}`;
             })
-            .join('&')));
+            .join('&');
+        return `${this.url}/data2?${args}`;
+    }
+
+    _getExtremesUrl() {
+        return `${this.url}/extremes`;
     }
 
     _setData(data, allSeries) {
@@ -79,7 +89,12 @@ class Chart {
             let allSeries = this.chart.series;
             let lcname = field.name.toLowerCase();
             let series = this._getSeriesByName(allSeries, lcname);
-            series.setData(data[lcname].slice(1, -1));
+            //series.setData(data[lcname].slice(1, -1));
+            //series.setData(data[lcname]);
+            //this.chart.series[0].setData(data[lcname], true, false, false);
+            this.chart.series[0].setData(data[lcname]);
+            this.chart.reflow();
+            this.chart.redraw();
         });
     }
 
@@ -101,13 +116,15 @@ class Chart {
         });
     }
 
-    _generateSeriesSettings(cardData, data) {
+    _generateSeriesSettings(cardData, extremes) {
         let seriesSettings = [];
         cardData.fields.forEach(field => {
             let yAxisID = this._getAxisIDByTitle(cardData.chart.yAxis, field.id);
             seriesSettings.push({
                 colorIndex: parseInt(cardData.chart.yAxis[yAxisID].color),
-                data: data[field.name.toLowerCase()].slice(1, -1),
+                cropThreshold: 10000,
+                //data: data[field.name.toLowerCase()].slice(1, -1),
+                data: [],
                 name: field.name,
                 tooltip: {
                     valueSuffix: ` ${field.unit}`
@@ -117,9 +134,9 @@ class Chart {
         });
         // adding hidden series (on hidden yAxis) for extremes
         cardData.fields.forEach(field => {
-            let edges = data[field.name.toLowerCase()].slice(0, 1).concat(data[field.name.toLowerCase()].slice(-2, -1));
+            //let edges = data[field.name.toLowerCase()].slice(0, 1).concat(data[field.name.toLowerCase()].slice(-2, -1));
             seriesSettings.push({
-                data: edges,
+                data: extremes[field.name.toLowerCase()],
                 visible: false,
                 yAxis: cardData.fields.length
             });
