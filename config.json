@@ -52,6 +52,32 @@
             }
         },
         {
+            "name": "light",
+            "type": "sensor",
+            "subscribes": [
+                "home/rcr/sensors/tsl2561/light"
+            ],
+            "cardData": {
+                "title": "rcr/light",
+                "fields": [{
+                    "id": "lgt",
+                    "name": "Light",
+                    "unit": "lx"
+                }],
+                "chart": {
+                    "name": "lightChart",
+                    "yAxis": [{
+                        "color": "0",
+                        "fieldID": "lgt"
+                    }]
+                },
+                "fab": {
+                    "icon": "loop",
+                    "function": "self.initChart()"
+                }
+            }
+        },
+        {
             "name": "led1",
             "type": "led",
             "subscribes": [
