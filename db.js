@@ -156,62 +156,6 @@ class db {
         let dbData = await this._transformInfluxData(this.influx.query(qData), measurements);
         return dbData;
     }
-
-    async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
-        // measurements
-        let measurements = await this.influx.getMeasurements()
-            .then(names => {
-                // filter not-subscribed measurements
-                return this._filterMeasurements(subscribes, names);
-            });
-
-        // queries
-        let duration = this._getResolution(dataStart, dataEnd);
-        let qStart = measurements.map(m => {
-            return this._makeEdgeQuery(m, duration, true);
-        });
-        let qEnd = measurements.map(m => {
-            return this._makeEdgeQuery(m, duration, false);
-        });
-        let qData = measurements.map(m => {
-            console.log(this._makeDataQuery(m, dataStart, dataEnd));
-            return this._makeDataQuery(m, dataStart, dataEnd);
-        });
-
-        // data
-        let dbData;
-        if ((typeof dataStart !== 'undefined') && (typeof dataStart !== 'undefined')) {
-            let dbStart;
-            let dbEnd;
-            [dbData, dbStart, dbEnd] = await Promise.all([
-                this._transformInfluxData(this.influx.query(qData), measurements),
-                this._transformInfluxData(this.influx.query(qStart), measurements),
-                this._transformInfluxData(this.influx.query(qEnd), measurements)
-            ]);
-            Object.keys(dbStart).forEach(function(key) {
-                dbStart[key][0][1] = null;
-            });
-            Object.keys(dbEnd).forEach(function(key) {
-                dbEnd[key][0][0] = Math.ceil(dbEnd[key][0][0] / 1000000) * 1000000
-                dbEnd[key][0][1] = null;
-            });
-
-            Object.keys(dbData).forEach(function(key) {
-                dbData[key] = dbStart[key].concat(dbData[key]).concat(dbEnd[key]);
-            });
-        } else {
-            let dbStart;
-            [dbData, dbStart] = await Promise.all([
-                this._transformInfluxData(this.influx.query(qData), measurements),
-                this._transformInfluxData(this.influx.query(qStart), measurements)
-            ]);
-
-            Object.keys(dbData).forEach(function(key) {
-                dbData[key] = dbStart[key].concat(dbData[key]);
-            });
-        }
-        return dbData;
-    }
 }
 
 module.exports = db;

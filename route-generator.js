@@ -27,16 +27,6 @@ function generateCardRouter(config, db) {
             let cardData = card.cardData;
             res.jsonp(cardData);
         });
-        // router/cardname/data
-        router.get(path.join('/', card.name, 'data'), function(req, res) {
-            var start = req.query.start;
-            var end = req.query.end;
-            db.getInfluxDataAsync(subscribes, start, end)
-                .then(data => {
-                    res.jsonp(data);
-                })
-                .catch(console.error);
-        });
         // router/cardname/extremes
         router.get(path.join('/', card.name, 'extremes'), function(req, res) {
             db.getInfluxExtremesAsync(subscribes)
