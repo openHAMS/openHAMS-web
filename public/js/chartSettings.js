@@ -56,7 +56,8 @@ var defaultChartSettings = {
                 count: 1,
                 text: 'week'
             }
-        ]
+        ],
+        inputEnabled: false
     },
     scrollbar: {
         enabled: true,

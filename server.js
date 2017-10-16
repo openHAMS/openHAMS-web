@@ -23,7 +23,8 @@ const db = new DB('127.0.0.1', 'sensors');
 
 // loading config & MQTT subscribes
 const config = jsonfile.readFileSync('config.json', 'utf8');
-const subscribes = config.cards.map(c => c.subscribes).reduce((a, b) => a.concat(b))
+const subscribes = config.subscribes
+	.filter((v, i, a) => a.indexOf(v) === i);
 
 
 mqtt.on('connect', function() {

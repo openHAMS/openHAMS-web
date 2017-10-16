@@ -2,21 +2,19 @@
     "cards": [{
             "name": "pressure",
             "type": "sensor",
-            "subscribes": [
-                "home/rcr/sensors/bmp180/pressure"
-            ],
             "cardData": {
                 "title": "rcr/pressure",
                 "fields": [{
+					"channel": "home/rcr/sensors/bmp180/pressure",
                     "id": "atm",
                     "name": "Pressure",
                     "unit": "hPa"
                 }],
                 "chart": {
-                    "name": "pressureChart",
-                    "yAxis": [{
+                    "series": [{
                         "color": "1",
-                        "fieldID": "atm"
+                        "name": "Pressure",
+                        "unit": "hPa"
                     }]
                 },
                 "fab": {
@@ -28,21 +26,19 @@
         {
             "name": "temperature",
             "type": "sensor",
-            "subscribes": [
-                "home/rcr/sensors/bmp180/temperature"
-            ],
             "cardData": {
                 "title": "rcr/temperature",
                 "fields": [{
+					"channel": "home/rcr/sensors/bmp180/temperature",
                     "id": "temp",
                     "name": "Temperature",
                     "unit": "°C"
                 }],
                 "chart": {
-                    "name": "temperatureChart",
-                    "yAxis": [{
+                    "series": [{
                         "color": "0",
-                        "fieldID": "temp"
+                        "name": "Temperature",
+                        "unit": "°C"
                     }]
                 },
                 "fab": {
@@ -54,21 +50,19 @@
         {
             "name": "light",
             "type": "sensor",
-            "subscribes": [
-                "home/rcr/sensors/tsl2561/light"
-            ],
             "cardData": {
                 "title": "rcr/light",
                 "fields": [{
-                    "id": "lgt",
+					"channel": "home/rcr/sensors/tsl2561/light",
+                    "id": "light",
                     "name": "Light",
                     "unit": "lx"
                 }],
                 "chart": {
-                    "name": "lightChart",
-                    "yAxis": [{
+                    "series": [{
                         "color": "0",
-                        "fieldID": "lgt"
+                        "name": "Light",
+                        "unit": "lx"
                     }]
                 },
                 "fab": {
@@ -80,9 +74,6 @@
         {
             "name": "led1",
             "type": "led",
-            "subscribes": [
-                "home/rcr/something/led"
-            ],
             "cardData": {
                 "colorlist": [{
                         "value": "FF0000",
@@ -127,5 +118,11 @@
                 ]
             }
         }
+    ],
+    "subscribes": [
+	    "home/rcr/sensors/bmp180/pressure",
+	    "home/rcr/sensors/bmp180/temperature",
+	    "home/rcr/sensors/tsl2561/light",
+        "home/rcr/something/led"
     ]
 }

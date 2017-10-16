@@ -2,8 +2,8 @@ include sensor
 include led
 
 mixin insertCard(card)
-    - let conf = card.cardData;
+    - let cfg = card.cardData;
     if card.type === 'sensor'
-        +sensorcard(conf.title, conf.fields, conf.chart, conf.fab)
+        +sensorcard(card.name, cfg.title, cfg.fields, cfg.chart, cfg.fab)
     else if card.type === 'led'
         +ledcard

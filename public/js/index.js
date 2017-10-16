@@ -1,12 +1,7 @@
 'use strict';
 
-const charts = [];
+const cards = [];
 
-Highcharts.setOptions({
-    global: {
-        useUTC: false
-    }
-});
 
 $(document).ready(function() {
     // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
@@ -21,14 +16,8 @@ $(document).ready(function() {
     let cardUrl = 'api/cards';
     $.getJSON(cardUrl, cards => {
         cards.forEach(card => {
-            if (card.cardData.chart !== undefined) {
-                let name = card.name;
-                let chart = new Chart(card.cardData, `${cardUrl}/${name}`);
-                chart.initChart();
-                // adding FAB onclick; bind 'this' to chart
-                document.getElementById(`${card.cardData.chart.name}-fab`)
-                    .addEventListener('click', chart.fabHandler.bind(chart));
-                charts.push(chart);
+            if (card.type === 'sensor') {
+                let newCard = new SensorCard(card.name, card.cardData, `${cardUrl}/${card.name}`);
             }
         });
     });
@@ -50,20 +39,20 @@ function changeStatus(text, style) {
     document.getElementById('conntext').className = style;
     document.getElementById('connbull').className = style;
 }
-socket.on('home/rcr/sensors/bmp180/pressure', function(a) {
-    document.getElementById('atm').textContent = parseFloat(a).toFixed(1);
-    //if (charts[0].loaded) {
-    //    var asd = Date.now();
-    //    charts[0].chart.series[1].addPoint([Date.now(), parseFloat(a)], false, false);
-    //    //charts[0].chart.redraw();
-    //}
-});
-socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
-    document.getElementById('temp').textContent = parseFloat(t).toFixed(1);
-});
-socket.on('home/rcr/sensors/tsl2561/light', function(t) {
-    document.getElementById('lgt').textContent = parseFloat(t).toFixed(1);
-});
+//socket.on('home/rcr/sensors/bmp180/pressure', function(a) {
+//    document.getElementById('atm').textContent = parseFloat(a).toFixed(1);
+//    //if (charts[0].loaded) {
+//    //    var asd = Date.now();
+//    //    charts[0].chart.series[1].addPoint([Date.now(), parseFloat(a)], false, false);
+//    //    //charts[0].chart.redraw();
+//    //}
+//});
+//socket.on('home/rcr/sensors/bmp180/temperature', function(t) {
+//    document.getElementById('temp').textContent = parseFloat(t).toFixed(1);
+//});
+//socket.on('home/rcr/sensors/tsl2561/light', function(t) {
+//    document.getElementById('lgt').textContent = parseFloat(t).toFixed(1);
+//});
 
 
 function j(o) {
