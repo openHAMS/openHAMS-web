@@ -35,11 +35,11 @@ function generateCardRouter(config, db) {
                 })
                 .catch(console.error);
         });
-        // router/cardname/data2
-        router.get(path.join('/', card.name, 'data2'), function(req, res) {
+        // router/cardname/data
+        router.get(path.join('/', card.name, 'data'), function(req, res) {
             var start = req.query.start;
             var end = req.query.end;
-            db.getInfluxData2Async(subscribes, start, end)
+            db.getInfluxDataAsync(subscribes, start, end)
                 .then(data => {
                     res.jsonp(data);
                 })

@@ -139,7 +139,7 @@ class db {
         return dbStart;
     }
 
-    async getInfluxData2Async(subscribes, dataStart, dataEnd) {
+    async getInfluxDataAsync(subscribes, dataStart, dataEnd) {
         // filtered measurements - intersection of measurements existing in InfluxDB and subscribed measurements
         let measurements = await this.influx.getMeasurements()
             .then(names => {

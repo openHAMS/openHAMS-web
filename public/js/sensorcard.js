@@ -85,7 +85,7 @@ class ChartHandler {
                 return `${argKey}=${argsObj[argKey]}`;
             })
             .join('&');
-        return `${this.url}/data2?${args}`;
+        return `${this.url}/data?${args}`;
     }
     
     _getExtremesUrl() {
