@@ -20,15 +20,6 @@ class db {
         return availableMeasurements;
     }
 
-    async _getMeasurements(subscribeList) {
-        // Returns measurements, which are both available & monitored
-        let measurements = await this.influx.getMeasurements()
-            .then(names => {
-                return this._filterMeasurements(subscribeList, names);
-            });
-        return measurements;
-    }
-
     _getResolution(start, end) {
         // Returns data resolution in sec from data duration
         // duration conversion ns to h
@@ -113,7 +104,11 @@ class db {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async getInfluxExtremesAsync(subscribes) {
         // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
-        let measurements = await this._getMeasurements(subscribes);
+        let measurements = await this.influx.getMeasurements()
+            .then(names => {
+                // filter not-subscribed measurements
+                return this._filterMeasurements(subscribes, names);
+            });
 
         // making queries
         //let resolution = this._getResolution(dataStart, dataEnd);
@@ -145,8 +140,12 @@ class db {
     }
 
     async getInfluxData2Async(subscribes, dataStart, dataEnd) {
-        // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
-        let measurements = await this._getMeasurements(subscribes);
+        // filtered measurements - intersection of measurements existing in InfluxDB and subscribed measurements
+        let measurements = await this.influx.getMeasurements()
+            .then(names => {
+                // filter not-subscribed measurements
+                return this._filterMeasurements(subscribes, names);
+            });
 
         // making queries
         let qData = measurements.map(m => {
@@ -160,7 +159,11 @@ class db {
 
     async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
         // measurements
-        let measurements = await this._getMeasurements(subscribeList);
+        let measurements = await this.influx.getMeasurements()
+            .then(names => {
+                // filter not-subscribed measurements
+                return this._filterMeasurements(subscribes, names);
+            });
 
         // queries
         let duration = this._getResolution(dataStart, dataEnd);

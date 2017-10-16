@@ -3,19 +3,21 @@ const express = require('express');
 const router = express.Router();
 const path = require('path');
 
+function pick(o, ...fields) {
+    return fields.reduce((a, x) => {
+        if(o.hasOwnProperty(x)) a[x] = o[x];
+        return a;
+    }, {});
+}
+
 function generateCardRouter(config, db) {
     let router = express.Router();
     let cards = config.cards;
+    let subscribes = config.subscribes;
     // adding card info
 	// router/
     router.get('/', function(req, res) {
-        let cardInfos = cards.map(card => (({
-            name,
-            cardData
-        }) => ({
-            name,
-            cardData
-        }))(card));
+        let cardInfos = cards.map(card => pick(card, 'name', 'type', 'cardData'));
         res.jsonp(cardInfos);
     })
     // adding card-specific routes
@@ -29,7 +31,7 @@ function generateCardRouter(config, db) {
         router.get(path.join('/', card.name, 'data'), function(req, res) {
             var start = req.query.start;
             var end = req.query.end;
-            db.getInfluxDataAsync(card.subscribes, start, end)
+            db.getInfluxDataAsync(subscribes, start, end)
                 .then(data => {
                     res.jsonp(data);
                 })
@@ -37,7 +39,7 @@ function generateCardRouter(config, db) {
         });
         // router/cardname/extremes
         router.get(path.join('/', card.name, 'extremes'), function(req, res) {
-            db.getInfluxExtremesAsync(card.subscribes)
+            db.getInfluxExtremesAsync(subscribes)
                 .then(extremes => {
                     res.jsonp(extremes);
                 })
@@ -47,7 +49,7 @@ function generateCardRouter(config, db) {
         router.get(path.join('/', card.name, 'data2'), function(req, res) {
             var start = req.query.start;
             var end = req.query.end;
-            db.getInfluxData2Async(card.subscribes, start, end)
+            db.getInfluxData2Async(subscribes, start, end)
                 .then(data => {
                     res.jsonp(data);
                 })

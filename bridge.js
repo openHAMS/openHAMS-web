@@ -61,10 +61,15 @@ const influx = new Influx.InfluxDB({
     ]
 });
 
+async function createDatabase() {
+    return influx.createDatabase('sensors')
+        .then();
+}
+
 influx.getDatabaseNames()
     .then(names => {
         if (!names.includes('sensors')) {
-            return influx.createDatabase('sensors');
+            return createDatabase();
         }
     })
     .then(() => {
