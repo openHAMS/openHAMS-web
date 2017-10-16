@@ -49,7 +49,8 @@ class db {
     _makeDataQuery(measurement, start, end) {
         // Generates query string for getting data with proper resolution
         if (start == null || end == null) {
-            return `SELECT MEAN(value) AS value FROM ${measurement} ` +
+            return `SELECT MEAN(value) AS value ` +
+                `FROM ${measurement} ` +
                 `WHERE time > now() - 6h ` +
                 `GROUP BY time(720s) fill(none)`;
         }
@@ -65,23 +66,15 @@ class db {
         let q;
         if (t === 0) {
             // 1m - raw data
-            q = `SELECT value FROM ${measurement} ` +
+            q = `SELECT value ` +
+                `FROM ${measurement} ` +
                 `WHERE time > now() - 1h`;
         } else {
-            q = `SELECT MEAN(value) AS value FROM ${measurement} ` +
+            q = `SELECT MEAN(value) AS value ` +
+                `FROM ${measurement} ` +
                 `WHERE time > ${startStr} AND time < ${endStr} ` +
                 `GROUP BY time(${t}s) fill(none)`;
         }
-        return q;
-    }
-
-    _makeEdgeQuery(measurement, t, isStart) {
-        // Generates query for getting first or last avg data depending on isStart
-        let order = isStart ? 'asc' : 'desc';
-        let q = `SELECT MEAN(value) AS value ` +
-            `FROM (SELECT value FROM ${measurement} ORDER BY ${order} LIMIT 3000) ` +
-            `WHERE time <= now() ` +
-            `GROUP BY time(${t}s) fill(none) LIMIT 1`;
         return q;
     }
 
@@ -113,12 +106,14 @@ class db {
         // making queries
         //let resolution = this._getResolution(dataStart, dataEnd);
         let qStart = measurements.map(m => {
-            return `SELECT value FROM ${m} ORDER BY asc LIMIT 1`;
-            //return this._makeEdgeQuery(m, resolution, true);
+            return `SELECT value ` +
+                `FROM ${m} ` +
+                `ORDER BY asc LIMIT 1`;
         });
         let qEnd = measurements.map(m => {
-            return `SELECT value FROM ${m} ORDER BY desc LIMIT 1`;
-            //return this._makeEdgeQuery(m, resolution, false);
+            return `SELECT value ` +
+                `FROM ${m} ` +
+                `ORDER BY desc LIMIT 1`;
         });
 
         // getting extremes
