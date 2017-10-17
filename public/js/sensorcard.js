@@ -1,26 +1,28 @@
 'use strict';
 
 class SensorCard {
-    constructor(name, config, url) {
+    constructor(socket, name, config, url) {
         this.name = name;
         this.config = config;
         this.url = url;
         
+        // chart
         if (this.config.hasOwnProperty('chart')) {
             this.chartHandler = new ChartHandler(`${this.name}-chart`, this.config.chart, url);
             this.chartHandler.initChart();
         }
+        // fab
         if (this.config.hasOwnProperty('fab')) {
             this.fabAction = new Function('self', this.config.fab.function);
+            document.getElementById(`${name}-fab`).addEventListener('click', () => { this.fabAction(this.chartHandler); });
         }
-    }
-    
-    fab() {
-        if (typeof this.chartHandler !== 'undefined') {            
-            fabAction(this.chartHandler);
-        }
-        else {
-            fabAction();
+        // fields
+        if (this.config.hasOwnProperty('fields')) {
+            config.fields.forEach(field => {
+                socket.on(field.channel, function(t) {
+                    document.getElementById(field.id).textContent = parseFloat(t).toFixed(1);
+                });
+            });
         }
     }
 }
@@ -42,6 +44,7 @@ class ChartHandler {
         this.loaded = false;
     }
 
+// PUBLIC functions
     initChart() {
         // MUST init with data
         $.getJSON(this._getExtremesUrl(), extremes => {
@@ -122,7 +125,7 @@ class ChartHandler {
     _generateYAxisSettings(chartData) {
         let yAxisSettings = [];
         chartData.series.forEach((series, index) => {
-            //const field = this._getFieldByID(cardData.fields, axis.fieldID);
+            // add real, visible axes for visible series
             yAxisSettings.push({
                 className: `highcharts-color-${series.color}`,
                 labels: {
@@ -138,10 +141,13 @@ class ChartHandler {
                 opposite: !(index % 2)
             });
         });
-        // adding hidden axis for extremes
-        yAxisSettings.push({
-            visible: false
+        chartData.series.forEach(() => {
+            // add hidden axes for extremes
+            yAxisSettings.push({
+                visible: false
+            });
         });
+
         return yAxisSettings;
     }
 
@@ -166,16 +172,9 @@ class ChartHandler {
 // CHART SETTERS
     _setData(data) {
         this.chartData.series.forEach((series, index) => {
-            //let allSeries = this.chart.series;
-            //let lcname = field.name.toLowerCase();
-            //let series = this._getSeriesByName(allSeries, lcname);
-            //series.setData(data[lcname].slice(1, -1));
-            //series.setData(data[lcname]);
-            //this.chart.series[0].setData(data[lcname], true, false, false);
             this.chart.series[index].setData(data[series.name.toLowerCase()]);
             this.chart.reflow();
             this.chart.redraw();
         });
     }
-
 }
