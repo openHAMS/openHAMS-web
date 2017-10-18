@@ -15,11 +15,11 @@
                         "color": "1",
                         "name": "Pressure",
                         "unit": "hPa"
-                    }]
-                },
-                "fab": {
-                    "icon": "loop",
-                    "function": "self.initChart()"
+                    }],
+                    "fab": {
+                        "icon": "loop",
+                        "function": "self.initChart()"
+                    }
                 }
             }
         },
@@ -39,11 +39,11 @@
                         "color": "0",
                         "name": "Temperature",
                         "unit": "°C"
-                    }]
-                },
-                "fab": {
-                    "icon": "loop",
-                    "function": "self.initChart()"
+                    }],
+                    "fab": {
+                        "icon": "loop",
+                        "function": "self.initChart()"
+                    }
                 }
             }
         },
@@ -57,18 +57,7 @@
                     "id": "light",
                     "name": "Light",
                     "unit": "lx"
-                }],
-                "chart": {
-                    "series": [{
-                        "color": "0",
-                        "name": "Light",
-                        "unit": "lx"
-                    }]
-                },
-                "fab": {
-                    "icon": "loop",
-                    "function": "self.initChart()"
-                }
+                }]
             }
         },
         {

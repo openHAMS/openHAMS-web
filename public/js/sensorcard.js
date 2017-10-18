@@ -10,11 +10,11 @@ class SensorCard {
         if (this.config.hasOwnProperty('chart')) {
             this.chartHandler = new ChartHandler(`${this.name}-chart`, this.config.chart, url);
             this.chartHandler.initChart();
-        }
-        // fab
-        if (this.config.hasOwnProperty('fab')) {
-            this.fabAction = new Function('self', this.config.fab.function);
-            document.getElementById(`${name}-fab`).addEventListener('click', () => { this.fabAction(this.chartHandler); });
+            // fab (only appears if there is a image/chart in card)
+            if (this.config.chart.hasOwnProperty('fab')) {
+                this.fabAction = new Function('self', this.config.chart.fab.function);
+                document.getElementById(`${name}-fab`).addEventListener('click', () => { this.fabAction(this.chartHandler); });
+            }
         }
         // fields
         if (this.config.hasOwnProperty('fields')) {
