@@ -19,12 +19,11 @@ class db {
         });
         return availableMeasurements;
     }
-
-    _getResolution(start, end) {
-        // Returns data resolution in sec from data duration
-        // duration conversion ns to h
-        let duration = (end - start) / (60 * 60 * 1000);
-        let res = 120;
+    
+    _getResolution(duration) {
+        // Returns data resolution in sec from data duration (in h)
+        // inverse resolution factor - the smaller this number, the bigger the resolution
+        let res = 60;
         if (duration < 0.5) {
             // 1m - raw data
             return 0;
@@ -46,15 +45,21 @@ class db {
         }
     }
 
+    _getDuration(start, end) {
+        // duration conversion ns to h
+        return (end - start) / (60 * 60 * 1000);
+    }
+
     _makeDataQuery(measurement, start, end) {
         // Generates query string for getting data with proper resolution
         if (start == null || end == null) {
+            let t = this._getResolution(6);
             return `SELECT MEAN(value) AS value ` +
                 `FROM ${measurement} ` +
                 `WHERE time > now() - 6h ` +
-                `GROUP BY time(720s) fill(none)`;
+                `GROUP BY time(${t}s) fill(none)`;
         }
-        let t = this._getResolution(start, end);
+        let t = this._getResolution(this._getDuration(start, end));
         start = parseInt(start);
         end = parseInt(end);
         // making upper time inclusive by adding tyme of one extra value
@@ -104,7 +109,6 @@ class db {
             });
 
         // making queries
-        //let resolution = this._getResolution(dataStart, dataEnd);
         let qStart = measurements.map(m => {
             return `SELECT value ` +
                 `FROM ${m} ` +
