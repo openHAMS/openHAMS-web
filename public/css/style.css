@@ -1,20 +1,16 @@
 .card .card-content {
     padding: 10px 24px 24px 24px;
-    border-radius: 0 0 2px 2px
 }
 
 data {
-    font-color: #212121;
     font-weight: 500;
 }
 
 div.chart {
     height: 15em;
-    width: 100%;
 }
 
 status {
-    font-weight: 400;
     margin-left: 0.33em;
 }
 
