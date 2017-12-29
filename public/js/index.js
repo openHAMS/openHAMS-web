@@ -37,6 +37,7 @@ $(document).ready(function() {
                     newCard = new SensorCard(socket, card.name, card.cardData, `${cardUrl}/${card.name}`);
                     break;
                 case 'led':
+                    newCard = new LedCard(socket);
                     break;
                 default:
                     console.log('unknown card type');

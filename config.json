@@ -1,5 +1,6 @@
 {
-    "cards": [{
+    "cards": [
+        {
             "name": "pressure",
             "type": "sensor",
             "cardData": {
@@ -64,6 +65,7 @@
             "name": "led1",
             "type": "led",
             "cardData": {
+                "channel": "home/rcr/something/led",
                 "colorlist": [{
                         "value": "FF0000",
                         "label": "red",
