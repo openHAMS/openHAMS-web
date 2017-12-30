@@ -62,7 +62,7 @@ class db {
         let t = this._getResolution(this._getDuration(start, end));
         start = parseInt(start);
         end = parseInt(end);
-        // making upper time inclusive by adding tyme of one extra value
+        // making upper time inclusive by adding time of one extra value
         end += t;
         // right padding
         let startStr = String(start + '0000000000000000000').substring(0, 19);
