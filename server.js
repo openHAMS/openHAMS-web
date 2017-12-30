@@ -53,7 +53,7 @@ app.get('/', function(req, res) {
 app.use('/api/cards', routegen.CardRouter(config, db));
 
 
-server.listen(8081, function() {
+server.listen(8080, function() {
     console.log('================================');
     console.log('           listening            ');
     console.log('================================');
