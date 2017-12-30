@@ -24,6 +24,15 @@ class db {
         return availableMeasurements;
     }
     
+    async _getAvailableMeasurements(subscribeList) {
+        // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
+        let measurements = await this.influx.getMeasurements()
+            .then(existingMeasurementList => {
+                // filter not-subscribed measurements
+                return this._filterMeasurements(subscribeList, existingMeasurementList);
+            });
+    }
+
     _getResolution(duration) {
         // Returns data resolution in sec from data duration (in h)
         // inverse resolution factor - the smaller this number, the bigger the resolution
@@ -104,13 +113,8 @@ class db {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    async getInfluxExtremesAsync(subscribes) {
-        // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
-        let measurements = await this.influx.getMeasurements()
-            .then(names => {
-                // filter not-subscribed measurements
-                return this._filterMeasurements(subscribes, names);
-            });
+    async getInfluxExtremesAsync(subscribeList) {
+        let measurements = this._getAvailableMeasurements(subscribeList);
 
         // making queries
         let qStart = measurements.map(m => {
@@ -147,13 +151,8 @@ class db {
         return dbStart;
     }
 
-    async getInfluxDataAsync(subscribes, dataStart, dataEnd) {
-        // filtered measurements - intersection of measurements existing in InfluxDB and subscribed measurements
-        let measurements = await this.influx.getMeasurements()
-            .then(names => {
-                // filter not-subscribed measurements
-                return this._filterMeasurements(subscribes, names);
-            });
+    async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
+        let measurements = this._getAvailableMeasurements(subscribeList);
 
         // making queries
         let qData = measurements.map(m => {
