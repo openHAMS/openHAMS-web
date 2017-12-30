@@ -8,15 +8,19 @@ class db {
         });
     }
 
-    _filterMeasurements(subscribeList, names) {
+    _getMeasurementName(subscribe) {
+        // Getting measurement names from mqtt addresses
+        let mqttSplit = mqttAddr.split('/');
+        return mqttSplit[mqttSplit.length - 1];
+    }
+
+    _filterMeasurements(subscribeList, existingMeasurementList) {
         // Returns intersection between monitored and available measurements
-        let availableMeasurements = subscribeList.map(mqttAddr => {
-            // Getting measurement names from mqtt addresses
-            let mqttSplit = mqttAddr.split('/');
-            return mqttSplit[mqttSplit.length - 1];
-        }).filter(queryMeasurement => {
-            return names.includes(queryMeasurement);
-        });
+        let availableMeasurements = subscribeList
+            .map(mqttAddr => this._getMeasurementName)
+            .filter(subscribedMeasurement => {
+                return existingMeasurementList.includes(subscribedMeasurement);
+            });
         return availableMeasurements;
     }
     
