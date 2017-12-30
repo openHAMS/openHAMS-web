@@ -120,6 +120,11 @@ class db {
                 `ORDER BY desc LIMIT 1`;
         });
 
+        // array check
+        if (!Array.isArray(qStart) || !qStart.length || !Array.isArray(qEnd) || !qEnd.length) {
+            return {};
+        }
+
         // getting extremes
         let [dbStart, dbEnd] = await Promise.all([
             this._transformInfluxData(this.influx.query(qStart), measurements),
@@ -150,6 +155,11 @@ class db {
         let qData = measurements.map(m => {
             return this._makeDataQuery(m, dataStart, dataEnd);
         });
+
+        // array check
+        if (!Array.isArray(qData) || !qData.length) {
+            return {};
+        }
 
         // getting data
         let dbData = await this._transformInfluxData(this.influx.query(qData), measurements);
