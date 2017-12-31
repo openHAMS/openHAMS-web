@@ -8,7 +8,7 @@ class db {
         });
     }
 
-    _getMeasurementName(subscribe) {
+    _getMeasurementName(mqttAddr) {
         // Getting measurement names from mqtt addresses
         let mqttSplit = mqttAddr.split('/');
         return mqttSplit[mqttSplit.length - 1];
@@ -17,7 +17,7 @@ class db {
     _filterMeasurements(subscribeList, existingMeasurementList) {
         // Returns intersection between monitored and available measurements
         let availableMeasurements = subscribeList
-            .map(mqttAddr => this._getMeasurementName)
+            .map(this._getMeasurementName)
             .filter(subscribedMeasurement => {
                 return existingMeasurementList.includes(subscribedMeasurement);
             });
@@ -26,11 +26,10 @@ class db {
 
     async _getAvailableMeasurements(subscribeList) {
         // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
-        let measurements = await this.influx.getMeasurements()
-            .then(existingMeasurementList => {
-                // filter not-subscribed measurements
-                return this._filterMeasurements(subscribeList, existingMeasurementList);
-            });
+        let existingMeasurementList = await this.influx.getMeasurements();
+        // filter not-subscribed measurements
+        let measurements = this._filterMeasurements(subscribeList, existingMeasurementList);
+        return measurements;
     }
 
     _getResolution(duration) {
@@ -121,7 +120,7 @@ class db {
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     async getInfluxExtremesAsync(subscribeList) {
-        let measurements = this._getAvailableMeasurements(subscribeList);
+        let measurements = await this._getAvailableMeasurements(subscribeList);
 
         // measurements array check
         if (!Array.isArray(measurements) || !measurements.length) {
@@ -159,7 +158,7 @@ class db {
     }
 
     async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
-        let measurements = this._getAvailableMeasurements(subscribeList);
+        let measurements = await this._getAvailableMeasurements(subscribeList);
 
         // measurements array check
         if (!Array.isArray(measurements) || !measurements.length) {
