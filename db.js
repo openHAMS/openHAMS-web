@@ -23,7 +23,7 @@ class db {
             });
         return availableMeasurements;
     }
-    
+
     async _getAvailableMeasurements(subscribeList) {
         // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
         let measurements = await this.influx.getMeasurements()
@@ -37,24 +37,31 @@ class db {
         // Returns data resolution in sec from data duration (in h)
         // inverse resolution factor - the smaller this number, the bigger the resolution
         let res = 60;
-        if (duration < 0.5) {
-            // 1m - raw data
-            return 0;
-        } else if (duration < 2.25) {
-            // 1h - 1.25m
-            return 1 * res;
-        } else if (duration < 4.5) {
-            // 3h - 3.75m
-            return 3 * res;
-        } else if (duration < 9) {
-            // 6h - 7.5m
-            return 6 * res;
-        } else if (duration < 18) {
-            // 12h - 15m
-            return 12 * res;
-        } else {
-            // 24h - 30m
-            return 24 * res;
+        switch (true) {
+            case (duration < 0.5):
+                // 1m - raw data
+                return 0;
+                break;
+            case (duration < 2.25):
+                // 1h - 1.25m
+                return 1 * res;
+                break;
+            case (duration < 4.5):
+                // 3h - 3.75m
+                return 3 * res;
+                break;
+            case (duration < 9):
+                // 6h - 7.5m
+                return 6 * res;
+                break;
+            case (duration < 18):
+                // 12h - 15m
+                return 12 * res;
+                break;
+            default:
+                // 24h - 30m
+                return 24 * res;
+                break;
         }
     }
 
