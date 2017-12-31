@@ -123,6 +123,11 @@ class db {
     async getInfluxExtremesAsync(subscribeList) {
         let measurements = this._getAvailableMeasurements(subscribeList);
 
+        // measurements array check
+        if (!Array.isArray(measurements) || !measurements.length) {
+            return {};
+        }
+
         // making queries
         let qStart = measurements.map(m => {
             return `SELECT value ` +
@@ -134,11 +139,6 @@ class db {
                 `FROM ${m} ` +
                 `ORDER BY desc LIMIT 1`;
         });
-
-        // array check
-        if (!Array.isArray(qStart) || !qStart.length || !Array.isArray(qEnd) || !qEnd.length) {
-            return {};
-        }
 
         // getting extremes
         let [dbStart, dbEnd] = await Promise.all([
@@ -161,15 +161,15 @@ class db {
     async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
         let measurements = this._getAvailableMeasurements(subscribeList);
 
+        // measurements array check
+        if (!Array.isArray(measurements) || !measurements.length) {
+            return {};
+        }
+
         // making queries
         let qData = measurements.map(m => {
             return this._makeDataQuery(m, dataStart, dataEnd);
         });
-
-        // array check
-        if (!Array.isArray(qData) || !qData.length) {
-            return {};
-        }
 
         // getting data
         let dbData = await this._transformInfluxData(this.influx.query(qData), measurements);
