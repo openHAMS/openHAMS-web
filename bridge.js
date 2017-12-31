@@ -1,5 +1,5 @@
 const mqtt = require('mqtt');
-const client = mqtt.connect('mqtt://server.local:1883');
+const client = mqtt.connect('mqtt://localhost:1883');
 const Influx = require('influx');
 
 
