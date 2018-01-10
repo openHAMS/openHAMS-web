@@ -23,10 +23,15 @@
         "express": "^4.15.2",
         "influx": "^5.0.0-alpha.4",
         "jsonfile": "^3.0.0",
+        "micro": "^9.1.0",
+        "microrouter": "^3.0.0",
         "mqtt": "^2.5.0",
         "promise": "^8.0.0",
         "pug": "^2.0.0-rc.1",
+        "request": "^2.83.0",
+        "request-promise": "^4.2.2",
         "serve-favicon": "^2.4.3",
-        "socket.io": "^2.0.3"
+        "socket.io": "^2.0.3",
+        "sync-request": "^4.1.0"
     }
 }
