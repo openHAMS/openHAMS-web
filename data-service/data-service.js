@@ -18,7 +18,7 @@ const service = microrouter.router(
     microrouter.get('/:cardname/extremes', async (req, res) => {
         const cardname = req.params.cardname;
         console.log(`/${req.params.cardname}/extremes`);
-        const mqttChannel = await rp({uri: `http://localhost:8001/${cardname}/channel`, simple: false})
+        const mqttChannel = await rp({uri: `http://localhost:8000/${cardname}/channel`, simple: false})
             .then(mqttChannel => {
                 if (mqttChannel === null || mqttChannel === "") {
                     micro.send(res, 404);
@@ -36,7 +36,7 @@ const service = microrouter.router(
     }),
     microrouter.get('/:cardname/data', async (req, res) => {
         const cardname = req.params.cardname;
-        const mqttChannel = await rp({uri: `http://localhost:8001/${cardname}/channel`, simple: false})
+        const mqttChannel = await rp({uri: `http://localhost:8000/${cardname}/channel`, simple: false})
             .catch((err) => null );
         const start = req.query.start;
         const end = req.query.end;
