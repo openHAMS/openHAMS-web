@@ -42,7 +42,7 @@ app.use(favicon(path.join(__dirname, '/public/icons/favicon.ico')));
 app.set('view engine', 'pug');
 
 app.get('/', function(req, res) {
-    res.render('index', config);
+    res.render('index', {cards: config});
 });
 
 app.use('/api/cards', cardrouter);
