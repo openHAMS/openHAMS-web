@@ -10,7 +10,7 @@
     },
     {
       "name": "openHAMS-web-service",
-      "script": "./server.js"
+      "script": "./web-service/server.js"
     }
   ]
 }

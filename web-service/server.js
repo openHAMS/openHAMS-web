@@ -11,7 +11,7 @@ const syncRequest = require('sync-request');
 const server = http.Server(app);
 const io = require('socket.io')(server);
 
-const cardrouter = require(path.join(__dirname, './card-router.js'));
+const cardrouter = require(path.join(__dirname, './routers/card-router.js'));
 
 // connecting to MQTT
 const Mqtt = require('mqtt');
@@ -35,11 +35,10 @@ mqtt.on('message', function(topic, message) {
 });
 
 
-app.use(express.static('public'));
-app.use('/static', express.static('public'));
+app.use('/static', express.static(path.join(__dirname, 'public')));
 app.use(favicon(path.join(__dirname, '/public/icons/favicon.ico')));
-
 app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, '/views'));
 
 app.get('/', function(req, res) {
     res.render('index', {cards: config});
@@ -48,7 +47,7 @@ app.get('/', function(req, res) {
 app.use('/api/cards', cardrouter);
 
 
-server.listen(8080, function() {
+server.listen(8081, function() {
     console.log('================================');
     console.log('           listening            ');
     console.log('================================');
