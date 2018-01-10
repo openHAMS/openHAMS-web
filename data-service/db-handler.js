@@ -1,11 +1,10 @@
+'use strict'
+
 const Influx = require('influx');
 
 class db {
-    constructor(host, database) {
-        this.influx = new Influx.InfluxDB({
-            host: host,
-            database: database
-        });
+    constructor(connection) {
+        this.influx = connection;
     }
 
     _getMeasurementName(mqttAddr) {
@@ -14,21 +13,28 @@ class db {
         return mqttSplit[mqttSplit.length - 1];
     }
 
-    _filterMeasurements(subscribeList, existingMeasurementList) {
+    _filterMeasurements(channelList, existingMeasurementList) {
         // Returns intersection between monitored and available measurements
-        let availableMeasurements = subscribeList
-            .map(this._getMeasurementName)
+        let subscribedMeasurements;
+        if (Array.isArray(channelList) && channelList.length) {
+            subscribedMeasurements = channelList.map(this._getMeasurementName);
+        } else if (channelList) {
+            subscribedMeasurements = [this._getMeasurementName(channelList)];
+        } else {
+            return [];
+        }
+        let availableMeasurements = subscribedMeasurements
             .filter(subscribedMeasurement => {
                 return existingMeasurementList.includes(subscribedMeasurement);
             });
         return availableMeasurements;
     }
 
-    async _getAvailableMeasurements(subscribeList) {
+    async _getAvailableMeasurements(channelList) {
         // filtering measurements - intersection of measurements existing in InfluxDB and subscribed measurements
         let existingMeasurementList = await this.influx.getMeasurements();
         // filter not-subscribed measurements
-        let measurements = this._filterMeasurements(subscribeList, existingMeasurementList);
+        let measurements = this._filterMeasurements(channelList, existingMeasurementList);
         return measurements;
     }
 
@@ -119,8 +125,8 @@ class db {
     }
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    async getInfluxExtremesAsync(subscribeList) {
-        let measurements = await this._getAvailableMeasurements(subscribeList);
+    async getInfluxExtremesAsync(channelList) {
+        let measurements = await this._getAvailableMeasurements(channelList);
 
         // measurements array check
         if (!Array.isArray(measurements) || !measurements.length) {
@@ -146,9 +152,9 @@ class db {
         ]);
         // setting values to null
         Object.keys(dbStart).forEach(function(key) {
-            // [key] iterating through measurements
-            // [0]   the sole value of that measurement
-            // [1]   the value of that sole measurement (other [0] is timestamp)
+            // [key]       iterating through measurements
+            //      [0]    the only measurement
+            //         [1] value of that single measurement (other [0] is timestamp)
             dbStart[key][0][1] = null;
             dbEnd[key][0][1] = null;
             // concat end to start
@@ -157,8 +163,8 @@ class db {
         return dbStart;
     }
 
-    async getInfluxDataAsync(subscribeList, dataStart, dataEnd) {
-        let measurements = await this._getAvailableMeasurements(subscribeList);
+    async getInfluxDataAsync(channelList, dataStart, dataEnd) {
+        let measurements = await this._getAvailableMeasurements(channelList);
 
         // measurements array check
         if (!Array.isArray(measurements) || !measurements.length) {

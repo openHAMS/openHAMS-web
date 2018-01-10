@@ -11,15 +11,12 @@ const syncRequest = require('sync-request');
 const server = http.Server(app);
 const io = require('socket.io')(server);
 
-const routegen = require('./route-generator.js');
+const cardrouter = require(path.join(__dirname, './card-router.js'));
 
 // connecting to MQTT
 const Mqtt = require('mqtt');
 const mqtt = Mqtt.connect('mqtt://127.0.0.1:1883');
 
-// connecting to InfluxDB
-const DB = require('./db.js');
-const db = new DB('127.0.0.1', 'sensors');
 // loading config & MQTT channels
 const config = JSON.parse(syncRequest('GET', 'http://localhost:8000/cards').getBody('utf8'));
 const channels = JSON.parse(syncRequest('GET', 'http://localhost:8000/channels').getBody('utf8'));
@@ -48,7 +45,7 @@ app.get('/', function(req, res) {
     res.render('index', config);
 });
 
-app.use('/api/cards', routegen.CardRouter(config, db));
+app.use('/api/cards', cardrouter);
 
 
 server.listen(8080, function() {
