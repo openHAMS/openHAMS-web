@@ -33,7 +33,7 @@ router.get('/:cardname/extremes', async function(req, res) {
 
 router.get('/:cardname/data', async function(req, res) {
     console.log(`${dataUrl}/${req.params.cardname}/data`);
-    rp({uri: `${dataUrl}/${req.params.cardname}/data`, simple: false})
+    rp({uri: `${dataUrl}/${req.params.cardname}/data`, qs: req.query, simple: false})
         .then(JSON.parse)
         .then(res.status(200).jsonp.bind(res))
         .catch(console.error);
